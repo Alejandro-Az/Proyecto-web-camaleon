@@ -4,15 +4,15 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 
-class DatabaseSeeder extends Seeder
+class EventSeeders extends Seeder
 {
     /**
-     * Siembra la base de datos de la aplicación.
+     * Seeders relacionados con eventos.
      */
     public function run(): void
     {
         $this->call([
-            EventSeeders::class,
+            DemoEventsSeeder::class,
         ]);
     }
 }
