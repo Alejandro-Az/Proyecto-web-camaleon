@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Event;
 use App\Models\EventLocation;
 use App\Models\EventSong;
+use App\Models\Guest;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 
@@ -74,6 +75,22 @@ class DemoEventsSeeder extends Seeder
             'address'       => 'Av. Principal 123, Ciudad de Ejemplo',
             'maps_url'      => 'https://maps.google.com',
             'display_order' => 2,
+        ]);
+
+        // Invitado demo para probar RSVP
+        Guest::create([
+            'event_id'         => $wedding->id,
+            'name'             => 'Invitado Demo',
+            'email'            => 'invitado.demo@example.com',
+            'phone'            => null,
+            'invitation_code'  => 'DEMO1234',
+            'invited_seats'    => 2,
+            'rsvp_status'      => Guest::RSVP_PENDING,
+            'rsvp_message'     => null,
+            'rsvp_public'      => false,
+            'guests_confirmed' => null,
+            'show_in_public_list' => false,
+            'checked_in_at'    => null,
         ]);
 
         // Canciones sugeridas para la boda (ya con votos de ejemplo)

@@ -1,0 +1,122 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API Eventos Camaleón",
+        "description": "Documentación de los endpoints de la plataforma de eventos tipo camaleón (boda, XV, cumpleaños, etc.).",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000",
+            "description": "Servidor principal de la API"
+        }
+    ],
+    "paths": {
+        "/eventos/{slug}": {
+            "get": {
+                "tags": [
+                    "Eventos Públicos"
+                ],
+                "summary": "Ver la página pública de un evento",
+                "description": "Devuelve la página HTML pública de un evento identificado por su slug.",
+                "operationId": "ae67a02f6ae6c0a22ddc97fbc1e43fbf",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Slug del evento (por ejemplo, boda-prueba-ana-luis)",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Página HTML con la información del evento."
+                    },
+                    "404": {
+                        "description": "Evento no encontrado o no visible públicamente."
+                    }
+                }
+            }
+        },
+        "/eventos/{slug}/rsvp": {
+            "post": {
+                "tags": [
+                    "RSVP"
+                ],
+                "summary": "Registrar/actualizar la confirmación de asistencia de un invitado",
+                "description": "Actualiza el RSVP de un invitado identificado por su código de invitación para un evento público.",
+                "operationId": "eceabbe93d3fa6585eb75313095723a1",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Slug del evento (por ejemplo, boda-prueba-ana-luis)",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "invitation_code",
+                                    "rsvp_status"
+                                ],
+                                "properties": {
+                                    "invitation_code": {
+                                        "type": "string",
+                                        "example": "DEMO1234"
+                                    },
+                                    "rsvp_status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "yes",
+                                            "no",
+                                            "maybe"
+                                        ],
+                                        "example": "yes"
+                                    },
+                                    "guests_confirmed": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "rsvp_message": {
+                                        "type": "string",
+                                        "example": "¡Nos vemos ahí!"
+                                    },
+                                    "show_in_public_list": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "302": {
+                        "description": "Redirección de vuelta a la página del evento con mensaje de éxito o error"
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Eventos Públicos",
+            "description": "Endpoints públicos relacionados con la visualización de eventos."
+        },
+        {
+            "name": "RSVP",
+            "description": "Endpoints para la confirmación de asistencia de invitados (RSVP)."
+        }
+    ]
+}

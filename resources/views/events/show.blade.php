@@ -77,13 +77,30 @@
             </section>
         @endif
 
-        {{-- Placeholder para futuros módulos (RSVP, playlist, galería, etc.) --}}
+        {{-- Módulo RSVP --}}
+        @if(data_get($event->modules, 'rsvp'))
+            @include('events.modules.rsvp', [
+                'event'        => $event,
+                'guest'        => $guest ?? null,
+                'rsvpEditMode' => $rsvpEditMode ?? false,
+            ])
+        @endif
+
+        {{-- Módulo: Lista pública de asistentes --}}
+        @if(data_get($event->modules, 'public_attendance_list'))
+            @include('events.modules.attendance-list', [
+                'event'           => $event,
+                'confirmedGuests' => $confirmedGuests ?? collect(),
+            ])
+        @endif
+
+        {{-- Placeholder para otros módulos futuros --}}
         <section class="bg-slate-800/40 rounded-3xl p-6 md:p-8 border border-dashed border-slate-700">
             <h2 class="text-xl font-semibold mb-2">Módulos del evento</h2>
             <p class="text-sm text-slate-300">
                 Aquí más adelante vamos a ir mostrando:
                 galería de fotos, lista de canciones sugeridas, votos,
-                confirmación de asistencia, código de vestimenta, etc.,
+                código de vestimenta, regalos, subida de fotos de invitados, etc.,
                 en función de los módulos activados en
                 <code class="text-xs bg-slate-900/70 px-1 py-0.5 rounded">events.modules</code>.
             </p>
