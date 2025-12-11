@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Event;
 use App\Models\EventLocation;
 use App\Models\EventSong;
+use App\Models\EventPhoto;
 use App\Models\Guest;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
@@ -130,6 +131,37 @@ class DemoEventsSeeder extends Seeder
             'votes_count'        => 7,
         ]);
 
+        // 📸 Fotos demo para la galería de la boda
+        EventPhoto::create([
+            'event_id'      => $wedding->id,
+            'type'          => EventPhoto::TYPE_GALLERY,
+            'file_path'     => 'events/'.$wedding->id.'/photos/originals/boda-1.jpg',
+            'thumbnail_path'=> 'events/'.$wedding->id.'/photos/thumbnails/boda-1_thumb.jpg',
+            'caption'       => 'Sesión de fotos de compromiso',
+            'status'        => EventPhoto::STATUS_APPROVED,
+            'display_order' => 1,
+        ]);
+
+        EventPhoto::create([
+            'event_id'      => $wedding->id,
+            'type'          => EventPhoto::TYPE_GALLERY,
+            'file_path'     => 'events/'.$wedding->id.'/photos/originals/boda-2.jpg',
+            'thumbnail_path'=> 'events/'.$wedding->id.'/photos/thumbnails/boda-2_thumb.jpg',
+            'caption'       => 'Momento especial durante la ceremonia',
+            'status'        => EventPhoto::STATUS_APPROVED,
+            'display_order' => 2,
+        ]);
+
+        EventPhoto::create([
+            'event_id'      => $wedding->id,
+            'type'          => EventPhoto::TYPE_GALLERY,
+            'file_path'     => 'events/'.$wedding->id.'/photos/originals/boda-3.jpg',
+            'thumbnail_path'=> 'events/'.$wedding->id.'/photos/thumbnails/boda-3_thumb.jpg',
+            'caption'       => 'Fiesta con amigos y familiares',
+            'status'        => EventPhoto::STATUS_APPROVED,
+            'display_order' => 3,
+        ]);
+
         // 2) Evento XV de ejemplo
         $xv = Event::create([
             'type'       => 'xv',
@@ -182,6 +214,27 @@ class DemoEventsSeeder extends Seeder
             'address'       => 'Blvd. Ejemplo 456, Ciudad de Ejemplo',
             'maps_url'      => 'https://maps.google.com',
             'display_order' => 1,
+        ]);
+
+        // 📸 Fotos demo para la galería de los XV
+        EventPhoto::create([
+            'event_id'      => $xv->id,
+            'type'          => EventPhoto::TYPE_GALLERY,
+            'file_path'     => 'events/'.$xv->id.'/photos/originals/xv-1.jpg',
+            'thumbnail_path'=> 'events/'.$xv->id.'/photos/thumbnails/xv-1_thumb.jpg',
+            'caption'       => 'Sesión de fotos con el vestido',
+            'status'        => EventPhoto::STATUS_APPROVED,
+            'display_order' => 1,
+        ]);
+
+        EventPhoto::create([
+            'event_id'      => $xv->id,
+            'type'          => EventPhoto::TYPE_GALLERY,
+            'file_path'     => 'events/'.$xv->id.'/photos/originals/xv-2.jpg',
+            'thumbnail_path'=> 'events/'.$xv->id.'/photos/thumbnails/xv-2_thumb.jpg',
+            'caption'       => 'Entrada al salón',
+            'status'        => EventPhoto::STATUS_APPROVED,
+            'display_order' => 2,
         ]);
     }
 }

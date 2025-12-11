@@ -5,17 +5,19 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\Guest;
+use App\Models\EventPhoto;
+use App\Models\EventSong;
 use App\Models\SongVote;
 use Illuminate\Http\Request;
 
 class EventController extends Controller
 {
-    /**
+/**
      * @OA\Get(
      *     path="/eventos/{slug}",
      *     tags={"Eventos Públicos"},
      *     summary="Ver la página pública de un evento",
-     *     description="Devuelve la página HTML pública de un evento identificado por su slug.",
+     *     description="Devuelve la página HTML pública de un evento identificado por su slug. La página puede incluir módulos como galería de fotos, RSVP, lista pública de asistentes, sugerencia de canciones y votos, dependiendo de la configuración del evento.",
      *     operationId="publicShowEvent",
      *     @OA\Parameter(
      *         name="slug",
@@ -26,7 +28,7 @@ class EventController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Página HTML con la información del evento."
+     *         description="Página HTML con la información pública del evento y sus módulos activos."
      *     ),
      *     @OA\Response(
      *         response=404,
@@ -94,6 +96,14 @@ class EventController extends Controller
             }
         }
 
+        $galleryPhotos = EventPhoto::query()
+            ->where('event_id', $event->id)
+            ->ofType(EventPhoto::TYPE_GALLERY)
+            ->approved()
+            ->orderBy('display_order')
+            ->orderBy('id')
+            ->get();
+
         return view('events.show', [
             'event'                     => $event,
             'guest'                     => $guest,
@@ -102,6 +112,7 @@ class EventController extends Controller
             'guestSongSuggestionsCount' => $guestSongSuggestionsCount,
             'guestVotesCount'           => $guestVotesCount,
             'votedSongIds'              => $votedSongIds,
+            'galleryPhotos'             => $galleryPhotos,
         ]);
     }
 }

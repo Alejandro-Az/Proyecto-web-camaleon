@@ -77,6 +77,14 @@
             </section>
         @endif
 
+        {{-- Galería de fotos (si el módulo está activado) --}}
+        @if(data_get($event->modules, 'gallery'))
+            @include('events.modules.gallery', [
+                'event'         => $event,
+                'galleryPhotos' => $galleryPhotos ?? collect(),
+            ])
+        @endif
+
         {{-- Módulo RSVP --}}
         @if(data_get($event->modules, 'rsvp'))
             @include('events.modules.rsvp', [

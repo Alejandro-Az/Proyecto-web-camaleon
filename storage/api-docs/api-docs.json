@@ -12,13 +12,117 @@
         }
     ],
     "paths": {
+        "/api/admin/events/{event}/photos": {
+            "post": {
+                "tags": [
+                    "Eventos (Admin)"
+                ],
+                "summary": "Subir una foto a la galería de un evento",
+                "description": "Permite subir una imagen (multipart/form-data) para la galería o portada de un evento. Recomendado proteger este endpoint con autenticación (por ejemplo, auth:sanctum) para uso exclusivo del organizador o administrador.",
+                "operationId": "adminUploadEventPhoto",
+                "parameters": [
+                    {
+                        "name": "event",
+                        "in": "path",
+                        "description": "ID del evento al que se asociará la foto",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "photo"
+                                ],
+                                "properties": {
+                                    "photo": {
+                                        "description": "Archivo de imagen a subir",
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "type": {
+                                        "description": "Tipo de foto (galería o portada)",
+                                        "type": "string",
+                                        "enum": [
+                                            "gallery",
+                                            "hero"
+                                        ]
+                                    },
+                                    "caption": {
+                                        "description": "Texto descriptivo opcional de la foto",
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "display_order": {
+                                        "description": "Orden opcional de despliegue en la galería",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Foto creada correctamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "event_id": {
+                                            "type": "integer"
+                                        },
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "caption": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "display_order": {
+                                            "type": "integer"
+                                        },
+                                        "file_url": {
+                                            "type": "string"
+                                        },
+                                        "thumbnail_url": {
+                                            "type": "string",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Errores de validación en la carga de la foto"
+                    },
+                    "404": {
+                        "description": "Evento no encontrado"
+                    }
+                }
+            }
+        },
         "/eventos/{slug}": {
             "get": {
                 "tags": [
                     "Eventos Públicos"
                 ],
                 "summary": "Ver la página pública de un evento",
-                "description": "Devuelve la página HTML pública de un evento identificado por su slug.",
+                "description": "Devuelve la página HTML pública de un evento identificado por su slug. La página puede incluir módulos como galería de fotos, RSVP, lista pública de asistentes, sugerencia de canciones y votos, dependiendo de la configuración del evento.",
                 "operationId": "publicShowEvent",
                 "parameters": [
                     {
@@ -33,7 +137,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Página HTML con la información del evento."
+                        "description": "Página HTML con la información pública del evento y sus módulos activos."
                     },
                     "404": {
                         "description": "Evento no encontrado o no visible públicamente."
@@ -255,6 +359,10 @@
         {
             "name": "RSVP",
             "description": "Endpoints para la confirmación de asistencia de invitados (RSVP)."
+        },
+        {
+            "name": "Eventos (Admin)",
+            "description": "Eventos (Admin)"
         }
     ]
 }

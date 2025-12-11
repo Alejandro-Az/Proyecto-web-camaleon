@@ -90,4 +90,9 @@ class Event extends Model
     {
         return $this->hasMany(SongVote::class);
     }
+
+    public function photos()
+    {
+        return $this->hasMany(EventPhoto::class);
+    }
 }
