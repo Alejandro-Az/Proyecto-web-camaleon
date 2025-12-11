@@ -11,9 +11,21 @@ class EventPhoto extends Model
     use HasFactory;
     use SoftDeletes;
 
-    public const TYPE_GALLERY      = 'gallery';
-    public const TYPE_HERO         = 'hero';
-    public const TYPE_GUEST_UPLOAD = 'guest_upload';
+    /*
+    |--------------------------------------------------------------------------
+    | Constantes de tipo de foto
+    |--------------------------------------------------------------------------
+    */
+
+    public const TYPE_GALLERY      = 'gallery';      // fotos de galería
+    public const TYPE_HERO         = 'hero';         // foto de portada / banner
+    public const TYPE_GUEST_UPLOAD = 'guest_upload'; // fotos subidas por invitados
+
+    /*
+    |--------------------------------------------------------------------------
+    | Constantes de estado
+    |--------------------------------------------------------------------------
+    */
 
     public const STATUS_APPROVED = 'approved';
     public const STATUS_PENDING  = 'pending';
@@ -22,7 +34,7 @@ class EventPhoto extends Model
     /**
      * Atributos asignables en masa.
      *
-     * Permite usar EventPhoto::create([...]).
+     * @var array<int, string>
      */
     protected $fillable = [
         'event_id',
@@ -36,32 +48,41 @@ class EventPhoto extends Model
     ];
 
     /**
-     * Evento al que pertenece esta foto.
+     * Casts de atributos.
+     *
+     * @var array<string, string>
      */
+    protected $casts = [
+        'display_order' => 'integer',
+    ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Relaciones
+    |--------------------------------------------------------------------------
+    */
+
     public function event()
     {
         return $this->belongsTo(Event::class);
     }
 
-    /**
-     * Invitado que subió la foto (null en galería oficial).
-     */
     public function guest()
     {
         return $this->belongsTo(Guest::class);
     }
 
-    /**
-     * Scope: solo fotos aprobadas.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
     public function scopeApproved($query)
     {
         return $query->where('status', self::STATUS_APPROVED);
     }
 
-    /**
-     * Scope: filtrar por tipo (gallery, hero, guest_upload, etc.).
-     */
     public function scopeOfType($query, string $type)
     {
         return $query->where('type', $type);

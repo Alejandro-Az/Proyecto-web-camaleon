@@ -131,6 +131,17 @@ class DemoEventsSeeder extends Seeder
             'votes_count'        => 7,
         ]);
 
+        // 📸 Foto de portada (hero) para la boda
+        EventPhoto::create([
+            'event_id'       => $wedding->id,
+            'type'           => EventPhoto::TYPE_HERO,
+            'file_path'      => 'events/'.$wedding->id.'/photos/originals/boda-hero.jpg',
+            'thumbnail_path' => null,
+            'caption'        => 'Portada oficial de la boda Ana & Luis',
+            'status'         => EventPhoto::STATUS_APPROVED,
+            'display_order'  => 1,
+        ]);
+
         // 📸 Fotos demo para la galería de la boda
         EventPhoto::create([
             'event_id'      => $wedding->id,
@@ -162,7 +173,7 @@ class DemoEventsSeeder extends Seeder
             'display_order' => 3,
         ]);
 
-        // 2) Evento XV de ejemplo
+        // 2) Evento XV de ejemplo (SIN hero, solo galería)
         $xv = Event::create([
             'type'       => 'xv',
             'name'       => 'XV Años de Valeria (Demo)',
@@ -216,7 +227,7 @@ class DemoEventsSeeder extends Seeder
             'display_order' => 1,
         ]);
 
-        // 📸 Fotos demo para la galería de los XV
+        // 📸 Fotos demo para la galería de los XV (sin hero)
         EventPhoto::create([
             'event_id'      => $xv->id,
             'type'          => EventPhoto::TYPE_GALLERY,
