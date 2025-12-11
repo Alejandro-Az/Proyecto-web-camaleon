@@ -6,6 +6,7 @@ use App\Models\Event;
 use App\Models\EventLocation;
 use App\Models\EventSong;
 use App\Models\EventPhoto;
+use App\Models\EventSchedule;
 use App\Models\Guest;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
@@ -37,7 +38,7 @@ class DemoEventsSeeder extends Seeder
                 'gallery'                => true,
                 'playlist_suggestions'   => true,
                 'playlist_votes'         => true,
-                'songs'                  => true,   // 🔹 clave usada por la vista
+                'songs'                  => true,
                 'rsvp'                   => true,
                 'public_attendance_list' => false,
                 'dress_code'             => true,
@@ -173,7 +174,52 @@ class DemoEventsSeeder extends Seeder
             'display_order' => 3,
         ]);
 
-        // 2) Evento XV de ejemplo (SIN hero, solo galería)
+        // 🕒 Itinerario demo para la boda
+        EventSchedule::create([
+            'event_id'       => $wedding->id,
+            'title'          => 'Ceremonia religiosa',
+            'description'    => 'Se ruega llegar 15 minutos antes.',
+            'starts_at'      => Carbon::create(2025, 12, 31, 18, 0),
+            'ends_at'        => Carbon::create(2025, 12, 31, 19, 0),
+            'location_label' => 'Iglesia de Prueba',
+            'location_type'  => 'ceremony',
+            'display_order'  => 1,
+        ]);
+
+        EventSchedule::create([
+            'event_id'       => $wedding->id,
+            'title'          => 'Sesión de fotos',
+            'description'    => 'Fotos con familia y amigos.',
+            'starts_at'      => Carbon::create(2025, 12, 31, 19, 15),
+            'ends_at'        => Carbon::create(2025, 12, 31, 20, 0),
+            'location_label' => 'Jardín del salón',
+            'location_type'  => 'photos',
+            'display_order'  => 2,
+        ]);
+
+        EventSchedule::create([
+            'event_id'       => $wedding->id,
+            'title'          => 'Banquete',
+            'description'    => 'Servicio de cena para todos los invitados.',
+            'starts_at'      => Carbon::create(2025, 12, 31, 20, 0),
+            'ends_at'        => Carbon::create(2025, 12, 31, 21, 30),
+            'location_label' => 'Salón Jardín de Ejemplo',
+            'location_type'  => 'reception',
+            'display_order'  => 3,
+        ]);
+
+        EventSchedule::create([
+            'event_id'       => $wedding->id,
+            'title'          => 'Primer baile',
+            'description'    => 'Baile de los novios y vals con papás.',
+            'starts_at'      => Carbon::create(2025, 12, 31, 21, 45),
+            'ends_at'        => Carbon::create(2025, 12, 31, 22, 30),
+            'location_label' => 'Pista principal',
+            'location_type'  => 'dance',
+            'display_order'  => 4,
+        ]);
+
+        // 2) Evento XV de ejemplo (con schedule también)
         $xv = Event::create([
             'type'       => 'xv',
             'name'       => 'XV Años de Valeria (Demo)',
@@ -193,7 +239,7 @@ class DemoEventsSeeder extends Seeder
                 'gallery'                => true,
                 'playlist_suggestions'   => true,
                 'playlist_votes'         => true,
-                'songs'                  => true,  // 🔹 también habilitamos canciones aquí
+                'songs'                  => true,
                 'rsvp'                   => true,
                 'public_attendance_list' => true,
                 'dress_code'             => true,
@@ -246,6 +292,51 @@ class DemoEventsSeeder extends Seeder
             'caption'       => 'Entrada al salón',
             'status'        => EventPhoto::STATUS_APPROVED,
             'display_order' => 2,
+        ]);
+
+        // 🕒 Itinerario demo para los XV
+        EventSchedule::create([
+            'event_id'       => $xv->id,
+            'title'          => 'Recepción y bienvenida',
+            'description'    => 'Bienvenida a los invitados y coctel de recepción.',
+            'starts_at'      => Carbon::create(2026, 5, 15, 17, 0),
+            'ends_at'        => Carbon::create(2026, 5, 15, 18, 0),
+            'location_label' => 'Salón de Eventos Luna',
+            'location_type'  => 'reception',
+            'display_order'  => 1,
+        ]);
+
+        EventSchedule::create([
+            'event_id'       => $xv->id,
+            'title'          => 'Presentación de la quinceañera',
+            'description'    => 'Entrada de Valeria con corte de honor.',
+            'starts_at'      => Carbon::create(2026, 5, 15, 18, 0),
+            'ends_at'        => Carbon::create(2026, 5, 15, 18, 30),
+            'location_label' => 'Pista principal',
+            'location_type'  => 'presentation',
+            'display_order'  => 2,
+        ]);
+
+        EventSchedule::create([
+            'event_id'       => $xv->id,
+            'title'          => 'Cena',
+            'description'    => 'Servicio de cena para todos los invitados.',
+            'starts_at'      => Carbon::create(2026, 5, 15, 19, 0),
+            'ends_at'        => Carbon::create(2026, 5, 15, 20, 30),
+            'location_label' => 'Salón de Eventos Luna',
+            'location_type'  => 'dinner',
+            'display_order'  => 3,
+        ]);
+
+        EventSchedule::create([
+            'event_id'       => $xv->id,
+            'title'          => 'Vals y protocolo',
+            'description'    => 'Vals con papás y chambelanes, protocolo especial.',
+            'starts_at'      => Carbon::create(2026, 5, 15, 21, 0),
+            'ends_at'        => Carbon::create(2026, 5, 15, 21, 45),
+            'location_label' => 'Pista principal',
+            'location_type'  => 'dance',
+            'display_order'  => 4,
         ]);
     }
 }
