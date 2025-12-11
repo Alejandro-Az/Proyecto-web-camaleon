@@ -95,4 +95,9 @@ class Event extends Model
     {
         return $this->hasMany(EventPhoto::class);
     }
+
+    public function schedules()
+    {
+        return $this->hasMany(EventSchedule::class);
+    }
 }

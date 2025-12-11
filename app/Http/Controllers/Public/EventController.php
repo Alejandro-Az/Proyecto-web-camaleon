@@ -17,7 +17,7 @@ class EventController extends Controller
      *     path="/eventos/{slug}",
      *     tags={"Eventos Públicos"},
      *     summary="Ver la página pública de un evento",
-     *     description="Devuelve la página HTML pública de un evento identificado por su slug. La página puede incluir módulos como galería de fotos, banner de portada, RSVP, lista pública de asistentes, sugerencia de canciones y votos, dependiendo de la configuración del evento.",
+     *     description="Devuelve la página HTML pública de un evento identificado por su slug. La página puede incluir módulos como portada (hero), galería de fotos, itinerario del evento, RSVP, lista pública de asistentes, sugerencia de canciones y votos, dependiendo de la configuración del evento.",
      *     operationId="publicShowEvent",
      *     @OA\Parameter(
      *         name="slug",
@@ -47,6 +47,11 @@ class EventController extends Controller
                 'songs' => function ($query) {
                     $query->approved()
                           ->orderByDesc('votes_count');
+                },
+                'schedules' => function ($query) {
+                    $query->orderBy('starts_at')
+                          ->orderBy('display_order')
+                          ->orderBy('id');
                 },
             ])
             ->firstOrFail();

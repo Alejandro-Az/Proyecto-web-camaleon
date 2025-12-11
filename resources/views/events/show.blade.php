@@ -58,6 +58,14 @@
             </div>
         </header>
 
+        {{-- Módulo: Itinerario / schedule --}}
+        @if(data_get($event->modules, 'schedule') && $event->schedules->count())
+            @include('events.modules.schedule', [
+                'event'     => $event,
+                'schedules' => $event->schedules,
+            ])
+        @endif
+
         {{-- Sección de ubicaciones (misa / recepción) --}}
         @if($event->locations->count())
             <section class="bg-slate-800/60 rounded-3xl p-6 md:p-8 shadow">
