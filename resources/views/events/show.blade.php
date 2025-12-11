@@ -94,6 +94,17 @@
             ])
         @endif
 
+        {{-- Módulo: Canciones y votos --}}
+        @if(data_get($event->modules, 'songs'))
+            @include('events.modules.songs', [
+                'event'                     => $event,
+                'guest'                     => $guest ?? null,
+                'guestSongSuggestionsCount' => $guestSongSuggestionsCount ?? null,
+                'guestVotesCount'           => $guestVotesCount ?? null,
+                'votedSongIds'              => $votedSongIds ?? [],
+            ])
+        @endif
+
         {{-- Placeholder para otros módulos futuros --}}
         <section class="bg-slate-800/40 rounded-3xl p-6 md:p-8 border border-dashed border-slate-700">
             <h2 class="text-xl font-semibold mb-2">Módulos del evento</h2>

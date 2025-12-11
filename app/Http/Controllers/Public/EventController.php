@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\Guest;
+use App\Models\SongVote;
 use Illuminate\Http\Request;
 
 class EventController extends Controller
@@ -15,6 +16,7 @@ class EventController extends Controller
      *     tags={"Eventos Públicos"},
      *     summary="Ver la página pública de un evento",
      *     description="Devuelve la página HTML pública de un evento identificado por su slug.",
+     *     operationId="publicShowEvent",
      *     @OA\Parameter(
      *         name="slug",
      *         in="path",
@@ -68,11 +70,38 @@ class EventController extends Controller
         // Modo edición de RSVP (?edit=1)
         $rsvpEditMode = $request->boolean('edit');
 
+        // Estadísticas para playlist por invitado
+        $guestSongSuggestionsCount = null;
+        $guestVotesCount           = null;
+        $votedSongIds              = [];
+
+        if ($guest) {
+            $guestSongSuggestionsCount = $event->songs()
+                ->where('suggested_by_guest_id', $guest->id)
+                ->count();
+
+            $guestVotesCount = $event->songVotes()
+                ->where('guest_id', $guest->id)
+                ->count();
+
+            if ($event->songs->isNotEmpty()) {
+                $votedSongIds = SongVote::query()
+                    ->where('event_id', $event->id)
+                    ->where('guest_id', $guest->id)
+                    ->whereIn('song_id', $event->songs->pluck('id'))
+                    ->pluck('song_id')
+                    ->all();
+            }
+        }
+
         return view('events.show', [
-            'event'           => $event,
-            'guest'           => $guest,
-            'confirmedGuests' => $confirmedGuests,
-            'rsvpEditMode'    => $rsvpEditMode,
+            'event'                     => $event,
+            'guest'                     => $guest,
+            'confirmedGuests'           => $confirmedGuests,
+            'rsvpEditMode'              => $rsvpEditMode,
+            'guestSongSuggestionsCount' => $guestSongSuggestionsCount,
+            'guestVotesCount'           => $guestVotesCount,
+            'votedSongIds'              => $votedSongIds,
         ]);
     }
 }

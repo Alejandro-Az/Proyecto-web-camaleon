@@ -15,7 +15,7 @@ use Illuminate\Routing\Controller as BaseController;
  *
  * @OA\Server(
  *     url=L5_SWAGGER_CONST_HOST,
- *     description="Servidor principal de la API"
+ *     description="Servidor base de la API"
  * )
  *
  * @OA\Tag(
@@ -26,6 +26,11 @@ use Illuminate\Routing\Controller as BaseController;
  * @OA\Tag(
  *     name="RSVP",
  *     description="Endpoints para la confirmación de asistencia de invitados (RSVP)."
+ * )
+ *
+ * @OA\Tag(
+ *     name="Playlist",
+ *     description="Endpoints para sugerir canciones y registrar votos en la playlist del evento."
  * )
  */
 class Controller extends BaseController

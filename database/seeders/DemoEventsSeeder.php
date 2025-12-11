@@ -36,6 +36,7 @@ class DemoEventsSeeder extends Seeder
                 'gallery'                => true,
                 'playlist_suggestions'   => true,
                 'playlist_votes'         => true,
+                'songs'                  => true,   // 🔹 clave usada por la vista
                 'rsvp'                   => true,
                 'public_attendance_list' => false,
                 'dress_code'             => true,
@@ -47,9 +48,11 @@ class DemoEventsSeeder extends Seeder
                 'schedule'               => true,
             ],
             'settings' => [
-                'playlist_max_songs_per_guest' => 3,
-                'playlist_max_votes_per_guest' => 10,
-                'public_show_song_author'      => true,
+                'playlist_enabled'                   => true,
+                'playlist_allow_guests_to_add_songs' => true,
+                'playlist_max_songs_per_guest'       => 3,
+                'playlist_max_votes_per_guest'       => 10,
+                'public_show_song_author'            => true,
             ],
 
             'owner_name'  => 'Ana & Luis',
@@ -77,20 +80,20 @@ class DemoEventsSeeder extends Seeder
             'display_order' => 2,
         ]);
 
-        // Invitado demo para probar RSVP
+        // Invitado demo para probar RSVP y playlist
         Guest::create([
-            'event_id'         => $wedding->id,
-            'name'             => 'Invitado Demo',
-            'email'            => 'invitado.demo@example.com',
-            'phone'            => null,
-            'invitation_code'  => 'DEMO1234',
-            'invited_seats'    => 2,
-            'rsvp_status'      => Guest::RSVP_PENDING,
-            'rsvp_message'     => null,
-            'rsvp_public'      => false,
-            'guests_confirmed' => null,
+            'event_id'            => $wedding->id,
+            'name'                => 'Invitado Demo',
+            'email'               => 'invitado.demo@example.com',
+            'phone'               => null,
+            'invitation_code'     => 'DEMO1234',
+            'invited_seats'       => 2,
+            'rsvp_status'         => Guest::RSVP_PENDING,
+            'rsvp_message'        => null,
+            'rsvp_public'         => false,
+            'guests_confirmed'    => null,
             'show_in_public_list' => false,
-            'checked_in_at'    => null,
+            'checked_in_at'       => null,
         ]);
 
         // Canciones sugeridas para la boda (ya con votos de ejemplo)
@@ -147,6 +150,7 @@ class DemoEventsSeeder extends Seeder
                 'gallery'                => true,
                 'playlist_suggestions'   => true,
                 'playlist_votes'         => true,
+                'songs'                  => true,  // 🔹 también habilitamos canciones aquí
                 'rsvp'                   => true,
                 'public_attendance_list' => true,
                 'dress_code'             => true,
@@ -158,9 +162,11 @@ class DemoEventsSeeder extends Seeder
                 'schedule'               => true,
             ],
             'settings' => [
-                'playlist_max_songs_per_guest' => 5,
-                'playlist_max_votes_per_guest' => 15,
-                'public_show_song_author'      => false,
+                'playlist_enabled'                   => true,
+                'playlist_allow_guests_to_add_songs' => true,
+                'playlist_max_songs_per_guest'       => 5,
+                'playlist_max_votes_per_guest'       => 15,
+                'public_show_song_author'            => false,
             ],
 
             'owner_name'  => 'Familia Demo',

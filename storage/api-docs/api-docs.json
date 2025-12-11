@@ -8,7 +8,7 @@
     "servers": [
         {
             "url": "http://localhost:8000",
-            "description": "Servidor principal de la API"
+            "description": "Servidor base de la API"
         }
     ],
     "paths": {
@@ -19,7 +19,7 @@
                 ],
                 "summary": "Ver la página pública de un evento",
                 "description": "Devuelve la página HTML pública de un evento identificado por su slug.",
-                "operationId": "ae67a02f6ae6c0a22ddc97fbc1e43fbf",
+                "operationId": "publicShowEvent",
                 "parameters": [
                     {
                         "name": "slug",
@@ -104,6 +104,144 @@
                 "responses": {
                     "302": {
                         "description": "Redirección de vuelta a la página del evento con mensaje de éxito o error"
+                    }
+                }
+            }
+        },
+        "/eventos/{slug}/canciones": {
+            "post": {
+                "tags": [
+                    "Eventos Públicos"
+                ],
+                "summary": "Sugerir una canción para el evento",
+                "description": "Registra una nueva canción sugerida para la playlist del evento. \n     *                  Soporta respuestas HTML (redirect) y JSON (AJAX) según el encabezado Accept.",
+                "operationId": "publicSuggestSong",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Slug del evento (por ejemplo, boda-prueba-ana-luis)",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "invitation_code",
+                                    "title"
+                                ],
+                                "properties": {
+                                    "invitation_code": {
+                                        "type": "string",
+                                        "example": "DEMO1234"
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Perfect"
+                                    },
+                                    "artist": {
+                                        "type": "string",
+                                        "example": "Ed Sheeran"
+                                    },
+                                    "url": {
+                                        "type": "string",
+                                        "example": "https://open.spotify.com/track/..."
+                                    },
+                                    "message_for_couple": {
+                                        "type": "string",
+                                        "example": "Para el primer baile"
+                                    },
+                                    "show_author": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Canción sugerida correctamente (respuesta JSON cuando se usa AJAX)."
+                    },
+                    "302": {
+                        "description": "Redirección a la página del evento con mensaje flash de éxito o error (uso tradicional de formulario HTML)."
+                    },
+                    "422": {
+                        "description": "Error de validación, invitación no encontrada, límite alcanzado o canción duplicada."
+                    },
+                    "404": {
+                        "description": "Evento no encontrado o no visible públicamente."
+                    }
+                }
+            }
+        },
+        "/eventos/{slug}/canciones/{song}/votar": {
+            "post": {
+                "tags": [
+                    "Eventos Públicos"
+                ],
+                "summary": "Votar o quitar voto a una canción del evento",
+                "description": "Alterna el voto del invitado actual sobre una canción específica del evento. \n     *                  Soporta HTML (redirect) y JSON (AJAX).",
+                "operationId": "publicVoteSong",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Slug del evento",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "song",
+                        "in": "path",
+                        "description": "ID de la canción del evento",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "invitation_code"
+                                ],
+                                "properties": {
+                                    "invitation_code": {
+                                        "type": "string",
+                                        "example": "DEMO1234"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Voto registrado o retirado correctamente (JSON)."
+                    },
+                    "302": {
+                        "description": "Redirección a la página del evento con mensaje flash."
+                    },
+                    "422": {
+                        "description": "Invitación no encontrada o límite de votos alcanzado."
+                    },
+                    "404": {
+                        "description": "Evento o canción no encontrados."
                     }
                 }
             }
