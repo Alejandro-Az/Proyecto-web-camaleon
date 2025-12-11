@@ -10,34 +10,52 @@
 
     <div class="max-w-5xl mx-auto px-4 py-10 space-y-8">
 
-        {{-- Encabezado del evento --}}
-        <header class="bg-slate-800/70 backdrop-blur rounded-3xl shadow-lg px-6 py-8 md:px-10 md:py-10">
-            <p class="text-sm uppercase tracking-[0.25em] text-slate-400 mb-3">
-                {{ strtoupper($event->type) }}
-            </p>
+        {{-- Encabezado del evento con posible foto de portada --}}
+        @php
+            $hero = $heroPhoto ?? null;
+            $heroUrl = $hero ? Storage::disk('public')->url($hero->file_path) : null;
+        @endphp
 
-            <h1 class="text-3xl md:text-4xl font-semibold mb-3">
-                {{ $event->name }}
-            </h1>
+        <header class="relative rounded-3xl shadow-lg overflow-hidden bg-slate-800/70 backdrop-blur">
+            @if($hero && $heroUrl)
+                <div class="absolute inset-0">
+                    <img
+                        src="{{ $heroUrl }}"
+                        alt="{{ $hero->caption ?? $event->name }}"
+                        class="w-full h-full object-cover"
+                    >
+                    <div class="absolute inset-0 bg-slate-900/60"></div>
+                </div>
+            @endif
 
-            <p class="text-slate-300 mb-1">
-                Fecha del evento:
-                <span class="font-medium">
-                    {{ $event->event_date->translatedFormat('d \\de F \\de Y') }}
-                </span>
-            </p>
+            <div class="relative px-6 py-8 md:px-10 md:py-10">
+                <p class="text-sm uppercase tracking-[0.25em] text-slate-400 mb-3">
+                    {{ strtoupper($event->type) }}
+                </p>
 
-            @if($event->start_time)
-                <p class="text-slate-300">
-                    Horario:
+                <h1 class="text-3xl md:text-4xl font-semibold mb-3">
+                    {{ $event->name }}
+                </h1>
+
+                <p class="text-slate-300 mb-1">
+                    Fecha del evento:
                     <span class="font-medium">
-                        {{ \Carbon\Carbon::createFromTimeString($event->start_time)->format('H:i') }}
-                        @if($event->end_time)
-                            – {{ \Carbon\Carbon::createFromTimeString($event->end_time)->format('H:i') }} hrs
-                        @endif
+                        {{ $event->event_date->translatedFormat('d \\de F \\de Y') }}
                     </span>
                 </p>
-            @endif
+
+                @if($event->start_time)
+                    <p class="text-slate-300">
+                        Horario:
+                        <span class="font-medium">
+                            {{ \Carbon\Carbon::createFromTimeString($event->start_time)->format('H:i') }}
+                            @if($event->end_time)
+                                – {{ \Carbon\Carbon::createFromTimeString($event->end_time)->format('H:i') }} hrs
+                            @endif
+                        </span>
+                    </p>
+                @endif
+            </div>
         </header>
 
         {{-- Sección de ubicaciones (misa / recepción) --}}
