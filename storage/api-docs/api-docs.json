@@ -122,7 +122,7 @@
                     "Eventos Públicos"
                 ],
                 "summary": "Ver la página pública de un evento",
-                "description": "Devuelve la página HTML pública de un evento identificado por su slug. La página puede incluir módulos como galería de fotos, banner de portada, RSVP, lista pública de asistentes, sugerencia de canciones y votos, dependiendo de la configuración del evento.",
+                "description": "Devuelve la página HTML pública de un evento identificado por su slug. La página puede incluir módulos como portada (hero), galería de fotos, itinerario del evento, RSVP, lista pública de asistentes, sugerencia de canciones y votos, así como fotos subidas por invitados, dependiendo de la configuración del evento.",
                 "operationId": "publicShowEvent",
                 "parameters": [
                     {
@@ -141,6 +141,128 @@
                     },
                     "404": {
                         "description": "Evento no encontrado o no visible públicamente."
+                    }
+                }
+            }
+        },
+        "/eventos/{slug}/regalos/{gift}/reservar": {
+            "post": {
+                "tags": [
+                    "Eventos Públicos"
+                ],
+                "summary": "Apartar un regalo por parte de un invitado",
+                "description": "Permite que un invitado reserve un regalo del evento usando su código de invitación. Respeta la cantidad disponible y la configuración del evento.",
+                "operationId": "publicReserveGift",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Slug del evento",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "gift",
+                        "in": "path",
+                        "description": "ID del regalo a reservar",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "invitation_code"
+                                ],
+                                "properties": {
+                                    "invitation_code": {
+                                        "description": "Código de invitación del invitado",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Regalo apartado correctamente."
+                    },
+                    "422": {
+                        "description": "Error de validación o negocio (sin código, sin unidades, ya reservado, etc.)."
+                    },
+                    "404": {
+                        "description": "Evento no encontrado, módulo desactivado o regalo que no pertenece al evento."
+                    }
+                }
+            }
+        },
+        "/eventos/{slug}/fotos-invitados": {
+            "post": {
+                "tags": [
+                    "Eventos Públicos"
+                ],
+                "summary": "Subir una foto al evento por parte de un invitado",
+                "description": "Permite que un invitado suba una foto asociada a un evento usando su código de invitación. Respeta el límite de fotos por invitado y la configuración de aprobación automática.",
+                "operationId": "publicUploadGuestPhoto",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Slug del evento (por ejemplo, boda-prueba-ana-luis)",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "invitation_code",
+                                    "photo"
+                                ],
+                                "properties": {
+                                    "invitation_code": {
+                                        "description": "Código de invitación del invitado",
+                                        "type": "string"
+                                    },
+                                    "caption": {
+                                        "description": "Descripción breve de la foto (opcional)",
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "photo": {
+                                        "description": "Archivo de imagen a subir",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Foto registrada correctamente."
+                    },
+                    "422": {
+                        "description": "Error de validación, invitación inválida o límite de fotos excedido."
+                    },
+                    "404": {
+                        "description": "Evento no encontrado o módulo desactivado."
                     }
                 }
             }

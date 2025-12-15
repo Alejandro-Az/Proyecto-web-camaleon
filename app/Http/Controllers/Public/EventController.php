@@ -8,6 +8,8 @@ use App\Models\Guest;
 use App\Models\EventPhoto;
 use App\Models\EventSong;
 use App\Models\SongVote;
+use App\Models\EventGift;
+use App\Models\EventGiftClaim;
 use Illuminate\Http\Request;
 
 class EventController extends Controller
@@ -17,7 +19,7 @@ class EventController extends Controller
      *     path="/eventos/{slug}",
      *     tags={"Eventos Públicos"},
      *     summary="Ver la página pública de un evento",
-     *     description="Devuelve la página HTML pública de un evento identificado por su slug. La página puede incluir módulos como portada (hero), galería de fotos, itinerario del evento, RSVP, lista pública de asistentes, sugerencia de canciones y votos, dependiendo de la configuración del evento.",
+     *     description="Devuelve la página HTML pública de un evento identificado por su slug. La página puede incluir módulos como portada (hero), galería de fotos, itinerario del evento, RSVP, lista pública de asistentes, sugerencia de canciones y votos, así como fotos subidas por invitados, dependiendo de la configuración del evento.",
      *     operationId="publicShowEvent",
      *     @OA\Parameter(
      *         name="slug",
@@ -104,7 +106,7 @@ class EventController extends Controller
         // Foto de portada (hero), si existe
         $heroPhoto = EventPhoto::query()
             ->where('event_id', $event->id)
-            ->ofType(EventPhoto::TYPE_HERO)
+            ->where('type', 'hero')
             ->approved()
             ->orderBy('display_order')
             ->orderBy('id')
@@ -113,7 +115,28 @@ class EventController extends Controller
         // Fotos de galería
         $galleryPhotos = EventPhoto::query()
             ->where('event_id', $event->id)
-            ->ofType(EventPhoto::TYPE_GALLERY)
+            ->where('type', 'gallery')
+            ->approved()
+            ->orderBy('display_order')
+            ->orderBy('id')
+            ->get();
+
+        // Regalos del evento (mesa de regalos)
+        $gifts = collect();
+        if (data_get($event->modules, 'gifts')) {
+            $hidePurchased = (bool) data_get(
+                $event->settings,
+                'gifts_hide_purchased_from_public',
+                false
+            );
+
+            $gifts = EventGift::publicList($event, $hidePurchased)->get();
+        }
+
+        // Fotos de invitados (solo las aprobadas)
+        $guestPhotos = EventPhoto::query()
+            ->where('event_id', $event->id)
+            ->where('type', 'guest_upload')
             ->approved()
             ->orderBy('display_order')
             ->orderBy('id')
@@ -129,6 +152,9 @@ class EventController extends Controller
             'votedSongIds'              => $votedSongIds,
             'heroPhoto'                 => $heroPhoto,
             'galleryPhotos'             => $galleryPhotos,
+            'guestPhotos'               => $guestPhotos,
+            'gifts'                     => $gifts,
+            
         ]);
     }
 }

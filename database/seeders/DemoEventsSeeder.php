@@ -3,10 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\Event;
+use App\Models\EventGift;
 use App\Models\EventLocation;
-use App\Models\EventSong;
 use App\Models\EventPhoto;
-use App\Models\EventSchedule;
+use App\Models\EventSong;
 use App\Models\Guest;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
@@ -43,7 +43,7 @@ class DemoEventsSeeder extends Seeder
                 'public_attendance_list' => false,
                 'dress_code'             => true,
                 'gifts'                  => true,
-                'guest_photos_upload'    => false,
+                'guest_photos_upload'    => true,
                 'romantic_phrases'       => true,
                 'countdown'              => true,
                 'map'                    => true,
@@ -55,6 +55,13 @@ class DemoEventsSeeder extends Seeder
                 'playlist_max_songs_per_guest'       => 3,
                 'playlist_max_votes_per_guest'       => 10,
                 'public_show_song_author'            => true,
+
+                // Configuración de regalos
+                'gifts_require_invitation_code'      => true,
+                'gifts_allow_unclaim'                => true,
+                'gifts_allow_show_buyer_name'        => true,
+                'gifts_hide_purchased_from_public'   => false,
+                'gifts_max_units_per_guest_per_gift' => 1,
             ],
 
             'owner_name'  => 'Ana & Luis',
@@ -82,8 +89,8 @@ class DemoEventsSeeder extends Seeder
             'display_order' => 2,
         ]);
 
-        // Invitado demo para probar RSVP y playlist
-        Guest::create([
+        // Invitado demo para probar RSVP, playlist y regalos
+        $weddingGuest = Guest::create([
             'event_id'            => $wedding->id,
             'name'                => 'Invitado Demo',
             'email'               => 'invitado.demo@example.com',
@@ -132,94 +139,75 @@ class DemoEventsSeeder extends Seeder
             'votes_count'        => 7,
         ]);
 
-        // 📸 Foto de portada (hero) para la boda
+        // 📸 Fotos demo para la galería de la boda
         EventPhoto::create([
             'event_id'       => $wedding->id,
-            'type'           => EventPhoto::TYPE_HERO,
-            'file_path'      => 'events/'.$wedding->id.'/photos/originals/boda-hero.jpg',
-            'thumbnail_path' => null,
-            'caption'        => 'Portada oficial de la boda Ana & Luis',
+            'type'           => EventPhoto::TYPE_GALLERY,
+            'file_path'      => 'events/'.$wedding->id.'/photos/originals/boda-1.jpg',
+            'thumbnail_path' => 'events/'.$wedding->id.'/photos/thumbnails/boda-1_thumb.jpg',
+            'caption'        => 'Sesión de fotos de compromiso',
             'status'         => EventPhoto::STATUS_APPROVED,
             'display_order'  => 1,
         ]);
 
-        // 📸 Fotos demo para la galería de la boda
         EventPhoto::create([
-            'event_id'      => $wedding->id,
-            'type'          => EventPhoto::TYPE_GALLERY,
-            'file_path'     => 'events/'.$wedding->id.'/photos/originals/boda-1.jpg',
-            'thumbnail_path'=> 'events/'.$wedding->id.'/photos/thumbnails/boda-1_thumb.jpg',
-            'caption'       => 'Sesión de fotos de compromiso',
-            'status'        => EventPhoto::STATUS_APPROVED,
-            'display_order' => 1,
-        ]);
-
-        EventPhoto::create([
-            'event_id'      => $wedding->id,
-            'type'          => EventPhoto::TYPE_GALLERY,
-            'file_path'     => 'events/'.$wedding->id.'/photos/originals/boda-2.jpg',
-            'thumbnail_path'=> 'events/'.$wedding->id.'/photos/thumbnails/boda-2_thumb.jpg',
-            'caption'       => 'Momento especial durante la ceremonia',
-            'status'        => EventPhoto::STATUS_APPROVED,
-            'display_order' => 2,
-        ]);
-
-        EventPhoto::create([
-            'event_id'      => $wedding->id,
-            'type'          => EventPhoto::TYPE_GALLERY,
-            'file_path'     => 'events/'.$wedding->id.'/photos/originals/boda-3.jpg',
-            'thumbnail_path'=> 'events/'.$wedding->id.'/photos/thumbnails/boda-3_thumb.jpg',
-            'caption'       => 'Fiesta con amigos y familiares',
-            'status'        => EventPhoto::STATUS_APPROVED,
-            'display_order' => 3,
-        ]);
-
-        // 🕒 Itinerario demo para la boda
-        EventSchedule::create([
             'event_id'       => $wedding->id,
-            'title'          => 'Ceremonia religiosa',
-            'description'    => 'Se ruega llegar 15 minutos antes.',
-            'starts_at'      => Carbon::create(2025, 12, 31, 18, 0),
-            'ends_at'        => Carbon::create(2025, 12, 31, 19, 0),
-            'location_label' => 'Iglesia de Prueba',
-            'location_type'  => 'ceremony',
-            'display_order'  => 1,
-        ]);
-
-        EventSchedule::create([
-            'event_id'       => $wedding->id,
-            'title'          => 'Sesión de fotos',
-            'description'    => 'Fotos con familia y amigos.',
-            'starts_at'      => Carbon::create(2025, 12, 31, 19, 15),
-            'ends_at'        => Carbon::create(2025, 12, 31, 20, 0),
-            'location_label' => 'Jardín del salón',
-            'location_type'  => 'photos',
+            'type'           => EventPhoto::TYPE_GALLERY,
+            'file_path'      => 'events/'.$wedding->id.'/photos/originals/boda-2.jpg',
+            'thumbnail_path' => 'events/'.$wedding->id.'/photos/thumbnails/boda-2_thumb.jpg',
+            'caption'        => 'Momento especial durante la ceremonia',
+            'status'         => EventPhoto::STATUS_APPROVED,
             'display_order'  => 2,
         ]);
 
-        EventSchedule::create([
+        EventPhoto::create([
             'event_id'       => $wedding->id,
-            'title'          => 'Banquete',
-            'description'    => 'Servicio de cena para todos los invitados.',
-            'starts_at'      => Carbon::create(2025, 12, 31, 20, 0),
-            'ends_at'        => Carbon::create(2025, 12, 31, 21, 30),
-            'location_label' => 'Salón Jardín de Ejemplo',
-            'location_type'  => 'reception',
+            'type'           => EventPhoto::TYPE_GALLERY,
+            'file_path'      => 'events/'.$wedding->id.'/photos/originals/boda-3.jpg',
+            'thumbnail_path' => 'events/'.$wedding->id.'/photos/thumbnails/boda-3_thumb.jpg',
+            'caption'        => 'Fiesta con amigos y familiares',
+            'status'         => EventPhoto::STATUS_APPROVED,
             'display_order'  => 3,
         ]);
 
-        EventSchedule::create([
-            'event_id'       => $wedding->id,
-            'title'          => 'Primer baile',
-            'description'    => 'Baile de los novios y vals con papás.',
-            'starts_at'      => Carbon::create(2025, 12, 31, 21, 45),
-            'ends_at'        => Carbon::create(2025, 12, 31, 22, 30),
-            'location_label' => 'Pista principal',
-            'location_type'  => 'dance',
-            'display_order'  => 4,
+        // 🎁 Regalos demo para la boda
+        EventGift::create([
+            'event_id'          => $wedding->id,
+            'name'              => 'Juego de vasos de cristal',
+            'description'       => 'Set de 6 vasos de cristal para bebidas.',
+            'store_label'       => 'Liverpool',
+            'url'               => 'https://example.com/regalo-vasos',
+            'quantity'          => 1,
+            'quantity_reserved' => 0,
+            'status'            => EventGift::STATUS_PENDING,
+            'display_order'     => 1,
         ]);
 
-        // 2) Evento XV de ejemplo (con schedule también)
+        EventGift::create([
+            'event_id'          => $wedding->id,
+            'name'              => 'Juego de platos x2',
+            'description'       => 'Juegos de platos llanos y hondos para 4 personas.',
+            'store_label'       => 'Amazon',
+            'url'               => 'https://example.com/regalo-platos',
+            'quantity'          => 2,
+            'quantity_reserved' => 1, // simulamos que ya hay uno apartado
+            'status'            => EventGift::STATUS_RESERVED,
+            'display_order'     => 2,
+        ]);
+
+        EventGift::create([
+            'event_id'          => $wedding->id,
+            'name'              => 'Tostador eléctrico',
+            'description'       => 'Tostador para 4 rebanadas.',
+            'store_label'       => 'Coppel',
+            'url'               => 'https://example.com/regalo-tostador',
+            'quantity'          => 1,
+            'quantity_reserved' => 1,
+            'status'            => EventGift::STATUS_PURCHASED,
+            'display_order'     => 3,
+        ]);
+
+        // 2) Evento XV de ejemplo
         $xv = Event::create([
             'type'       => 'xv',
             'name'       => 'XV Años de Valeria (Demo)',
@@ -243,7 +231,7 @@ class DemoEventsSeeder extends Seeder
                 'rsvp'                   => true,
                 'public_attendance_list' => true,
                 'dress_code'             => true,
-                'gifts'                  => false,
+                'gifts'                  => true,
                 'guest_photos_upload'    => true,
                 'romantic_phrases'       => false,
                 'countdown'              => true,
@@ -256,6 +244,12 @@ class DemoEventsSeeder extends Seeder
                 'playlist_max_songs_per_guest'       => 5,
                 'playlist_max_votes_per_guest'       => 15,
                 'public_show_song_author'            => false,
+
+                'gifts_require_invitation_code'      => true,
+                'gifts_allow_unclaim'                => false,
+                'gifts_allow_show_buyer_name'        => false,
+                'gifts_hide_purchased_from_public'   => true, // aquí ocultaremos purchased
+                'gifts_max_units_per_guest_per_gift' => 1,
             ],
 
             'owner_name'  => 'Familia Demo',
@@ -273,70 +267,65 @@ class DemoEventsSeeder extends Seeder
             'display_order' => 1,
         ]);
 
-        // 📸 Fotos demo para la galería de los XV (sin hero)
+        // 📸 Fotos demo para la galería de los XV
         EventPhoto::create([
-            'event_id'      => $xv->id,
-            'type'          => EventPhoto::TYPE_GALLERY,
-            'file_path'     => 'events/'.$xv->id.'/photos/originals/xv-1.jpg',
-            'thumbnail_path'=> 'events/'.$xv->id.'/photos/thumbnails/xv-1_thumb.jpg',
-            'caption'       => 'Sesión de fotos con el vestido',
-            'status'        => EventPhoto::STATUS_APPROVED,
-            'display_order' => 1,
-        ]);
-
-        EventPhoto::create([
-            'event_id'      => $xv->id,
-            'type'          => EventPhoto::TYPE_GALLERY,
-            'file_path'     => 'events/'.$xv->id.'/photos/originals/xv-2.jpg',
-            'thumbnail_path'=> 'events/'.$xv->id.'/photos/thumbnails/xv-2_thumb.jpg',
-            'caption'       => 'Entrada al salón',
-            'status'        => EventPhoto::STATUS_APPROVED,
-            'display_order' => 2,
-        ]);
-
-        // 🕒 Itinerario demo para los XV
-        EventSchedule::create([
             'event_id'       => $xv->id,
-            'title'          => 'Recepción y bienvenida',
-            'description'    => 'Bienvenida a los invitados y coctel de recepción.',
-            'starts_at'      => Carbon::create(2026, 5, 15, 17, 0),
-            'ends_at'        => Carbon::create(2026, 5, 15, 18, 0),
-            'location_label' => 'Salón de Eventos Luna',
-            'location_type'  => 'reception',
+            'type'           => EventPhoto::TYPE_GALLERY,
+            'file_path'      => 'events/'.$xv->id.'/photos/originals/xv-1.jpg',
+            'thumbnail_path' => 'events/'.$xv->id.'/photos/thumbnails/xv-1_thumb.jpg',
+            'caption'        => 'Sesión de fotos con el vestido',
+            'status'         => EventPhoto::STATUS_APPROVED,
             'display_order'  => 1,
         ]);
 
-        EventSchedule::create([
+        EventPhoto::create([
             'event_id'       => $xv->id,
-            'title'          => 'Presentación de la quinceañera',
-            'description'    => 'Entrada de Valeria con corte de honor.',
-            'starts_at'      => Carbon::create(2026, 5, 15, 18, 0),
-            'ends_at'        => Carbon::create(2026, 5, 15, 18, 30),
-            'location_label' => 'Pista principal',
-            'location_type'  => 'presentation',
+            'type'           => EventPhoto::TYPE_GALLERY,
+            'file_path'      => 'events/'.$xv->id.'/photos/originals/xv-2.jpg',
+            'thumbnail_path' => 'events/'.$xv->id.'/photos/thumbnails/xv-2_thumb.jpg',
+            'caption'        => 'Entrada al salón',
+            'status'         => EventPhoto::STATUS_APPROVED,
             'display_order'  => 2,
         ]);
 
-        EventSchedule::create([
-            'event_id'       => $xv->id,
-            'title'          => 'Cena',
-            'description'    => 'Servicio de cena para todos los invitados.',
-            'starts_at'      => Carbon::create(2026, 5, 15, 19, 0),
-            'ends_at'        => Carbon::create(2026, 5, 15, 20, 30),
-            'location_label' => 'Salón de Eventos Luna',
-            'location_type'  => 'dinner',
-            'display_order'  => 3,
+        // 🎁 Regalos demo para los XV (uno purchased que no debe mostrarse por setting)
+        EventGift::create([
+            'event_id'          => $xv->id,
+            'name'              => 'Marco de fotos decorativo',
+            'description'       => 'Marco grande para fotos del evento.',
+            'store_label'       => 'Amazon',
+            'url'               => 'https://example.com/xv-marco',
+            'quantity'          => 1,
+            'quantity_reserved' => 0,
+            'status'            => EventGift::STATUS_PENDING,
+            'display_order'     => 1,
         ]);
 
-        EventSchedule::create([
-            'event_id'       => $xv->id,
-            'title'          => 'Vals y protocolo',
-            'description'    => 'Vals con papás y chambelanes, protocolo especial.',
-            'starts_at'      => Carbon::create(2026, 5, 15, 21, 0),
-            'ends_at'        => Carbon::create(2026, 5, 15, 21, 45),
-            'location_label' => 'Pista principal',
-            'location_type'  => 'dance',
-            'display_order'  => 4,
+        EventGift::create([
+            'event_id'          => $xv->id,
+            'name'              => 'Set de luces decorativas',
+            'description'       => 'Luces tipo fairy lights.',
+            'store_label'       => 'MercadoLibre',
+            'url'               => 'https://example.com/xv-luces',
+            'quantity'          => 1,
+            'quantity_reserved' => 1,
+            'status'            => EventGift::STATUS_PURCHASED,
+            'display_order'     => 2,
+        ]);
+
+        $xvGuest = Guest::create([
+            'event_id'            => $xv->id,
+            'name'                => 'Invitado Demo XV',
+            'email'               => 'invitado.xv.demo@example.com',
+            'phone'               => null,
+            'invitation_code'     => 'XVDEMO1234',
+            'invited_seats'       => 3,
+            'rsvp_status'         => Guest::RSVP_PENDING,
+            'rsvp_message'        => null,
+            'rsvp_public'         => true,
+            'guests_confirmed'    => null,
+            'show_in_public_list' => true,
+            'checked_in_at'       => null,
         ]);
     }
 }

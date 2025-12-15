@@ -2,29 +2,45 @@
 <html lang="es">
 <head>
     <meta charset="utf-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $event->name }} | Eventos Camaleón</title>
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite([
+        'resources/css/app.css',
+        'resources/js/app.js',
+        'resources/js/guest-photos.js',
+    ])
 </head>
 <body class="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950 text-slate-100">
 
     <div class="max-w-5xl mx-auto px-4 py-10 space-y-8">
 
-        {{-- Encabezado del evento con posible foto de portada --}}
         @php
-            $hero = $heroPhoto ?? null;
-            $heroUrl = $hero ? Storage::disk('public')->url($hero->file_path) : null;
+            /** @var \App\Models\Event $event */
+
+            // Si el controlador ya pasó $heroPhoto, lo usamos.
+            // Si no, lo calculamos desde la relación photos.
+            $heroPhoto = $heroPhoto
+                ?? $event->photos
+                    ->where('type', \App\Models\EventPhoto::TYPE_HERO)
+                    ->where('status', \App\Models\EventPhoto::STATUS_APPROVED)
+                    ->sortBy('display_order')
+                    ->sortBy('id')
+                    ->first();
         @endphp
 
+        {{-- Encabezado del evento (con soporte para foto hero) --}}
         <header class="relative rounded-3xl shadow-lg overflow-hidden bg-slate-800/70 backdrop-blur">
-            @if($hero && $heroUrl)
+            @if($heroPhoto)
+                {{-- Imagen de portada --}}
                 <div class="absolute inset-0">
                     <img
-                        src="{{ $heroUrl }}"
-                        alt="{{ $hero->caption ?? $event->name }}"
+                        src="{{ asset('storage/' . $heroPhoto->file_path) }}"
+                        alt="{{ $heroPhoto->caption ?: 'Foto de portada del evento' }}"
                         class="w-full h-full object-cover"
                     >
-                    <div class="absolute inset-0 bg-slate-900/60"></div>
+                    {{-- Overlay para que el texto siga siendo legible --}}
+                    <div class="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-slate-950/40 to-slate-950/90"></div>
                 </div>
             @endif
 
@@ -55,6 +71,12 @@
                         </span>
                     </p>
                 @endif
+
+                @if($heroPhoto && $heroPhoto->caption)
+                    <p class="text-sm text-slate-200 mt-3">
+                        {{ $heroPhoto->caption }}
+                    </p>
+                @endif
             </div>
         </header>
 
@@ -66,7 +88,7 @@
             ])
         @endif
 
-        {{-- Sección de ubicaciones (misa / recepción) --}}
+        {{-- Sección de ubicaciones (misa / recepción, etc.) --}}
         @if($event->locations->count())
             <section class="bg-slate-800/60 rounded-3xl p-6 md:p-8 shadow">
                 <h2 class="text-xl font-semibold mb-4">Ubicación</h2>
@@ -111,6 +133,15 @@
             ])
         @endif
 
+        {{-- Módulo: Fotos de invitados (subida + grid) --}}
+        @if(data_get($event->modules, 'guest_photos_upload'))
+            @include('events.modules.guest-photos', [
+                'event'       => $event,
+                'guest'       => $guest ?? null,
+                'guestPhotos' => $guestPhotos ?? collect(),
+            ])
+        @endif
+
         {{-- Módulo RSVP --}}
         @if(data_get($event->modules, 'rsvp'))
             @include('events.modules.rsvp', [
@@ -136,6 +167,16 @@
                 'guestSongSuggestionsCount' => $guestSongSuggestionsCount ?? null,
                 'guestVotesCount'           => $guestVotesCount ?? null,
                 'votedSongIds'              => $votedSongIds ?? [],
+            ])
+        @endif
+
+        {{-- Módulo: Mesa de regalos --}}
+        @if(data_get($event->modules, 'gifts'))
+            @include('events.modules.gifts', [
+                'event'                   => $event,
+                'gifts'                   => $gifts ?? collect(),
+                'guest'                   => $guest ?? null,
+                'guestGiftClaimsByGiftId' => $guestGiftClaimsByGiftId ?? collect(),
             ])
         @endif
 
