@@ -100,4 +100,9 @@ class Event extends Model
     {
         return $this->hasMany(EventSchedule::class);
     }
+
+    public function gifts()
+    {
+        return $this->hasMany(EventGift::class);
+    }
 }
