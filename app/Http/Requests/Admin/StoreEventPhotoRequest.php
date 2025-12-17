@@ -6,12 +6,6 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreEventPhotoRequest extends FormRequest
 {
-    /**
-     * Determina si el usuario está autorizado.
-     *
-     * Por ahora devolvemos true. Más adelante se puede
-     * conectar con Policies o guards específicos de admin.
-     */
     public function authorize(): bool
     {
         return true;
@@ -29,12 +23,12 @@ class StoreEventPhotoRequest extends FormRequest
                 'required',
                 'file',
                 'image',
-                'max:5048', // KB ~ 2MB
+                'max:5120', // KB = 5MB
             ],
             'type' => [
                 'nullable',
                 'string',
-                'in:gallery,hero',
+                'in:gallery,hero,dress_code',
             ],
             'caption' => [
                 'nullable',
@@ -58,7 +52,7 @@ class StoreEventPhotoRequest extends FormRequest
             'photo.required' => 'Debe seleccionar una imagen para subir.',
             'photo.image'    => 'El archivo debe ser una imagen (jpeg, png, webp, etc.).',
             'photo.max'      => 'La imagen no debe pesar más de 5MB.',
-            'type.in'        => 'El tipo de foto debe ser gallery o hero.',
+            'type.in'        => 'El tipo de foto debe ser gallery, hero o dress_code.',
         ];
     }
 }

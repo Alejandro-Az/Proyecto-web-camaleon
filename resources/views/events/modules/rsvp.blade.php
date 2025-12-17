@@ -147,7 +147,6 @@
                         @enderror
                     </div>
 
-
                     {{-- Mensaje para los anfitriones --}}
                     <div>
                         <label class="block text-sm font-medium mb-1" for="rsvp_message">

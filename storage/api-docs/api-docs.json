@@ -145,14 +145,14 @@
                 }
             }
         },
-        "/eventos/{slug}/regalos/{gift}/reservar": {
+        "/eventos/{slug}/regalos/{gift}/liberar": {
             "post": {
                 "tags": [
-                    "Eventos Públicos"
+                    "Regalos Públicos"
                 ],
-                "summary": "Apartar un regalo por parte de un invitado",
-                "description": "Permite que un invitado reserve un regalo del evento usando su código de invitación. Respeta la cantidad disponible y la configuración del evento.",
-                "operationId": "publicReserveGift",
+                "summary": "Liberar (cancelar) la reserva de un regalo",
+                "description": "Permite que un invitado libere la reserva de un regalo que previamente había apartado.",
+                "operationId": "publicUnreserveGift",
                 "parameters": [
                     {
                         "name": "slug",
@@ -160,16 +160,18 @@
                         "description": "Slug del evento",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "example": "boda-prueba-ana-luis"
                         }
                     },
                     {
                         "name": "gift",
                         "in": "path",
-                        "description": "ID del regalo a reservar",
+                        "description": "ID del regalo dentro del evento",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
@@ -183,8 +185,9 @@
                                 ],
                                 "properties": {
                                     "invitation_code": {
-                                        "description": "Código de invitación del invitado",
-                                        "type": "string"
+                                        "description": "Código de invitación del invitado que quiere liberar el regalo",
+                                        "type": "string",
+                                        "example": "DEMO1234"
                                     }
                                 },
                                 "type": "object"
@@ -194,13 +197,34 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Regalo apartado correctamente."
-                    },
-                    "422": {
-                        "description": "Error de validación o negocio (sin código, sin unidades, ya reservado, etc.)."
+                        "description": "Reserva liberada correctamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "gift_id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "quantity_reserved": {
+                                            "type": "integer",
+                                            "example": 0
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "pending"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "404": {
-                        "description": "Evento no encontrado, módulo desactivado o regalo que no pertenece al evento."
+                        "description": "Evento no público, módulo de regalos desactivado o liberación deshabilitada."
+                    },
+                    "422": {
+                        "description": "Errores de validación o reglas de negocio (invitación inválida, regalo no reservado, ya comprado, etc.)"
                     }
                 }
             }
@@ -330,6 +354,9 @@
                 "responses": {
                     "302": {
                         "description": "Redirección de vuelta a la página del evento con mensaje de éxito o error"
+                    },
+                    "404": {
+                        "description": "Evento no encontrado, no visible públicamente o módulo de RSVP desactivado."
                     }
                 }
             }
@@ -404,7 +431,7 @@
                         "description": "Error de validación, invitación no encontrada, límite alcanzado o canción duplicada."
                     },
                     "404": {
-                        "description": "Evento no encontrado o no visible públicamente."
+                        "description": "Evento no encontrado, no visible públicamente o módulo de canciones desactivado."
                     }
                 }
             }
@@ -467,7 +494,7 @@
                         "description": "Invitación no encontrada o límite de votos alcanzado."
                     },
                     "404": {
-                        "description": "Evento o canción no encontrados."
+                        "description": "Evento o canción no encontrados, o módulo de canciones desactivado."
                     }
                 }
             }
@@ -485,6 +512,10 @@
         {
             "name": "Eventos (Admin)",
             "description": "Eventos (Admin)"
+        },
+        {
+            "name": "Regalos Públicos",
+            "description": "Regalos Públicos"
         }
     ]
 }
