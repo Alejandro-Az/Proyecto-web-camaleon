@@ -20,6 +20,7 @@ class EventPhoto extends Model
     public const TYPE_GALLERY      = 'gallery';      // fotos de galería
     public const TYPE_HERO         = 'hero';         // foto de portada / banner
     public const TYPE_GUEST_UPLOAD = 'guest_upload'; // fotos subidas por invitados
+    public const TYPE_DRESS_CODE   = 'dress_code';   // imágenes para código de vestimenta
 
     /*
     |--------------------------------------------------------------------------
@@ -55,12 +56,6 @@ class EventPhoto extends Model
     protected $casts = [
         'display_order' => 'integer',
     ];
-
-    /*
-    |--------------------------------------------------------------------------
-    | Relaciones
-    |--------------------------------------------------------------------------
-    */
 
     public function event()
     {

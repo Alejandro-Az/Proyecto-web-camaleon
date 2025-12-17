@@ -11,18 +11,8 @@ use Illuminate\Support\Str;
  */
 class EventFactory extends Factory
 {
-    /**
-     * El nombre del modelo correspondiente.
-     *
-     * @var class-string<\App\Models\Event>
-     */
     protected $model = Event::class;
 
-    /**
-     * Define el estado por defecto del modelo.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         $name = 'Evento ' . $this->faker->sentence(3);
@@ -42,23 +32,15 @@ class EventFactory extends Factory
             'accent_color'    => '#f9a8d4',
             'font_family'     => 'Playfair Display',
 
-            'modules' => [
-                'gallery'                => true,
-                'playlist_suggestions'   => true,
-                'playlist_votes'         => true,
-                'rsvp'                   => true,
-                'public_attendance_list' => false,
-                'dress_code'             => true,
-                'gifts'                  => true,
-                'guest_photos_upload'    => false,
-                'romantic_phrases'       => true,
-                'countdown'              => true,
-                'map'                    => true,
-                'schedule'               => true,
-            ],
+            // 🔒 Normalizado (sin legacy keys)
+            'modules' => Event::normalizeModulesForStorage([]),
+
             'settings' => [
-                'playlist_max_songs_per_guest' => 3,
-                'playlist_max_votes_per_guest' => 10,
+                'playlist_enabled'                   => true,
+                'playlist_allow_guests_to_add_songs' => true,
+                'playlist_max_songs_per_guest'       => 3,
+                'playlist_max_votes_per_guest'       => 10,
+                'public_show_song_author'            => true,
             ],
 
             'owner_name'  => $this->faker->name(),

@@ -6,10 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\Guest;
 use App\Models\EventPhoto;
-use App\Models\EventSong;
 use App\Models\SongVote;
 use App\Models\EventGift;
-use App\Models\EventGiftClaim;
 use Illuminate\Http\Request;
 
 class EventController extends Controller
@@ -45,6 +43,16 @@ class EventController extends Controller
             ->with([
                 'locations' => function ($query) {
                     $query->orderBy('display_order');
+                },
+                'dressCodes' => function ($query) {
+                    $query->where('is_enabled', true)
+                          ->orderBy('display_order')
+                          ->orderBy('id');
+                },
+                'romanticPhrases' => function ($query) {
+                    $query->where('is_enabled', true)
+                          ->orderBy('display_order')
+                          ->orderBy('id');
                 },
                 'songs' => function ($query) {
                     $query->approved()
@@ -142,6 +150,9 @@ class EventController extends Controller
             ->orderBy('id')
             ->get();
 
+        // Para evitar ruido en la vista (aunque use ??)
+        $guestGiftClaimsByGiftId = collect();
+
         return view('events.show', [
             'event'                     => $event,
             'guest'                     => $guest,
@@ -154,7 +165,7 @@ class EventController extends Controller
             'galleryPhotos'             => $galleryPhotos,
             'guestPhotos'               => $guestPhotos,
             'gifts'                     => $gifts,
-            
+            'guestGiftClaimsByGiftId'   => $guestGiftClaimsByGiftId,
         ]);
     }
 }

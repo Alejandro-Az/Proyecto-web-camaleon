@@ -58,7 +58,7 @@ class SongController extends Controller
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Evento no encontrado o no visible públicamente."
+     *         description="Evento no encontrado, no visible públicamente o módulo de canciones desactivado."
      *     )
      * )
      */
@@ -67,6 +67,17 @@ class SongController extends Controller
         $event = Event::publicVisible()
             ->where('slug', $slug)
             ->firstOrFail();
+
+        // Módulo activo
+        if (! data_get($event->modules, 'songs')) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'El módulo de canciones no está disponible para este evento.',
+                ], 404);
+            }
+
+            abort(404);
+        }
 
         // Invitado por código
         $invitationCode = $request->input('invitation_code');
@@ -90,7 +101,6 @@ class SongController extends Controller
                 ->with('song_error', $message);
         }
 
-        // Validación (Laravel devolverá JSON 422 automáticamente si expectsJson() es true)
         $validated = $request->validate([
             'title'              => ['required', 'string', 'max:150'],
             'artist'             => ['nullable', 'string', 'max:150'],
@@ -99,7 +109,6 @@ class SongController extends Controller
             'show_author'        => ['sometimes', 'boolean'],
         ]);
 
-        // Normalizamos para consultar duplicados (título + artista)
         $normalizedTitle  = trim($validated['title']);
         $normalizedArtist = $validated['artist'] ?? null;
 
@@ -126,7 +135,6 @@ class SongController extends Controller
                 ->with('song_error', $message);
         }
 
-        // Límite de canciones por invitado
         $maxSongsPerGuest = data_get($event->settings, 'playlist_max_songs_per_guest');
 
         if ($maxSongsPerGuest) {
@@ -231,7 +239,7 @@ class SongController extends Controller
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Evento o canción no encontrados."
+     *         description="Evento o canción no encontrados, o módulo de canciones desactivado."
      *     )
      * )
      */
@@ -240,6 +248,17 @@ class SongController extends Controller
         $event = Event::publicVisible()
             ->where('slug', $slug)
             ->firstOrFail();
+
+        // Módulo activo
+        if (! data_get($event->modules, 'songs')) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'El módulo de canciones no está disponible para este evento.',
+                ], 404);
+            }
+
+            abort(404);
+        }
 
         if ($song->event_id !== $event->id || $song->status !== EventSong::STATUS_APPROVED) {
             $message = 'La canción no pertenece a este evento o no está disponible.';
@@ -286,7 +305,6 @@ class SongController extends Controller
         $message  = '';
 
         if ($existingVote) {
-            // Quitar voto
             $existingVote->delete();
 
             if ($song->votes_count > 0) {
@@ -296,7 +314,6 @@ class SongController extends Controller
             $hasVoted = false;
             $message  = 'Has retirado tu voto de esta canción.';
         } else {
-            // Verificar límite antes de crear
             if ($maxVotesPerGuest) {
                 $currentVotes = SongVote::query()
                     ->where('event_id', $event->id)

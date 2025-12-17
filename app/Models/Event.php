@@ -12,20 +12,12 @@ class Event extends Model
     use HasFactory;
     use SoftDeletes;
 
-    /**
-     * Posibles valores de status de un evento.
-     */
     public const STATUS_DRAFT    = 'draft';
     public const STATUS_ACTIVE   = 'active';
     public const STATUS_FINISHED = 'finished';
     public const STATUS_ARCHIVED = 'archived';
     public const STATUS_DELETED  = 'deleted';
 
-    /**
-     * Atributos asignables en masa.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'type',
         'name',
@@ -46,15 +38,11 @@ class Event extends Model
         'auto_cleanup_after_days',
     ];
 
-    /**
-     * Casts de atributos.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
-        'event_date' => 'date',
-        'modules'    => 'array',
-        'settings'   => 'array',
+        'event_date'             => 'date',
+        'modules'                => 'array',
+        'settings'               => 'array',
+        'auto_cleanup_after_days'=> 'integer',
     ];
 
     public function scopePublicVisible(Builder $query): Builder
@@ -63,6 +51,78 @@ class Event extends Model
             self::STATUS_ACTIVE,
             self::STATUS_FINISHED,
         ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Módulos (helper + defaults + legacy)
+    |--------------------------------------------------------------------------
+    */
+
+    public static function moduleDefaults(): array
+    {
+        return (array) config('event_modules.defaults', []);
+    }
+
+    public static function moduleLegacyAliases(): array
+    {
+        return (array) config('event_modules.legacy_aliases', []);
+    }
+
+    /**
+     * Devuelve el array de módulos con:
+     * - defaults aplicados
+     * - aliases legacy mapeados a llaves canónicas
+     */
+    public function modulesWithDefaults(): array
+    {
+        $modules = is_array($this->modules) ? $this->modules : [];
+
+        // Si existe legacy pero no existe la llave canónica, lo mapeamos.
+        foreach (self::moduleLegacyAliases() as $legacyKey => $canonicalKey) {
+            if (!array_key_exists($canonicalKey, $modules) && array_key_exists($legacyKey, $modules)) {
+                $modules[$canonicalKey] = (bool) $modules[$legacyKey];
+            }
+        }
+
+        // Defaults + valores del evento (evento gana)
+        return array_replace(self::moduleDefaults(), $modules);
+    }
+
+    /**
+     * Normaliza un array para guardarse en DB:
+     * - aplica defaults
+     * - migra legacy → canónico
+     * - elimina llaves legacy (para que no sigan propagándose)
+     */
+    public static function normalizeModulesForStorage(array $modules): array
+    {
+        $normalized = array_replace(self::moduleDefaults(), $modules);
+
+        foreach (self::moduleLegacyAliases() as $legacyKey => $canonicalKey) {
+            if (!array_key_exists($canonicalKey, $modules) && array_key_exists($legacyKey, $modules)) {
+                $normalized[$canonicalKey] = (bool) $modules[$legacyKey];
+            }
+            unset($normalized[$legacyKey]);
+        }
+
+        // Asegurar booleanos para llaves conocidas
+        foreach (array_keys(self::moduleDefaults()) as $key) {
+            $normalized[$key] = (bool) ($normalized[$key] ?? false);
+        }
+
+        return $normalized;
+    }
+
+    public function isModuleEnabled(string $key, bool $fallback = false): bool
+    {
+        $modules = $this->modulesWithDefaults();
+
+        if (!array_key_exists($key, $modules)) {
+            return $fallback;
+        }
+
+        return (bool) $modules[$key];
     }
 
     /*
@@ -104,5 +164,22 @@ class Event extends Model
     public function gifts()
     {
         return $this->hasMany(EventGift::class);
+    }
+
+    // Si usted ya tiene estos modelos en su proyecto, deje estas relaciones:
+    public function dressCodes()
+    {
+        return $this->hasMany(EventDressCode::class);
+    }
+
+    public function romanticPhrases()
+    {
+        return $this->hasMany(EventRomanticPhrase::class);
+    }
+
+    // Futuro (cuando implementemos historia):
+    public function stories()
+    {
+        return $this->hasMany(EventStory::class);
     }
 }

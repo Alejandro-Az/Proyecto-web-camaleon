@@ -18,8 +18,6 @@
         @php
             /** @var \App\Models\Event $event */
 
-            // Si el controlador ya pasó $heroPhoto, lo usamos.
-            // Si no, lo calculamos desde la relación photos.
             $heroPhoto = $heroPhoto
                 ?? $event->photos
                     ->where('type', \App\Models\EventPhoto::TYPE_HERO)
@@ -29,17 +27,14 @@
                     ->first();
         @endphp
 
-        {{-- Encabezado del evento (con soporte para foto hero) --}}
         <header class="relative rounded-3xl shadow-lg overflow-hidden bg-slate-800/70 backdrop-blur">
             @if($heroPhoto)
-                {{-- Imagen de portada --}}
                 <div class="absolute inset-0">
                     <img
                         src="{{ asset('storage/' . $heroPhoto->file_path) }}"
                         alt="{{ $heroPhoto->caption ?: 'Foto de portada del evento' }}"
                         class="w-full h-full object-cover"
                     >
-                    {{-- Overlay para que el texto siga siendo legible --}}
                     <div class="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-slate-950/40 to-slate-950/90"></div>
                 </div>
             @endif
@@ -80,6 +75,19 @@
             </div>
         </header>
 
+        {{-- Módulo: Cuenta regresiva --}}
+        @if(data_get($event->modules, 'countdown'))
+            @include('events.modules.countdown', ['event' => $event])
+        @endif
+
+        {{-- Módulo: Código de vestimenta --}}
+        @if(data_get($event->modules, 'dress_code') && $event->dressCodes->count())
+            @include('events.modules.dress-code', [
+                'event'      => $event,
+                'dressCodes' => $event->dressCodes,
+            ])
+        @endif
+
         {{-- Módulo: Itinerario / schedule --}}
         @if(data_get($event->modules, 'schedule') && $event->schedules->count())
             @include('events.modules.schedule', [
@@ -88,8 +96,8 @@
             ])
         @endif
 
-        {{-- Sección de ubicaciones (misa / recepción, etc.) --}}
-        @if($event->locations->count())
+        {{-- Sección de ubicaciones (FIX: respeta modules.map) --}}
+        @if(data_get($event->modules, 'map') && $event->locations->count())
             <section class="bg-slate-800/60 rounded-3xl p-6 md:p-8 shadow">
                 <h2 class="text-xl font-semibold mb-4">Ubicación</h2>
 
@@ -125,7 +133,7 @@
             </section>
         @endif
 
-        {{-- Galería de fotos (si el módulo está activado) --}}
+        {{-- Galería de fotos --}}
         @if(data_get($event->modules, 'gallery'))
             @include('events.modules.gallery', [
                 'event'         => $event,
@@ -133,7 +141,7 @@
             ])
         @endif
 
-        {{-- Módulo: Fotos de invitados (subida + grid) --}}
+        {{-- Módulo: Fotos de invitados --}}
         @if(data_get($event->modules, 'guest_photos_upload'))
             @include('events.modules.guest-photos', [
                 'event'       => $event,
@@ -180,7 +188,15 @@
             ])
         @endif
 
-        {{-- Placeholder para otros módulos futuros --}}
+        {{-- Módulo: Frases románticas / del evento --}}
+        @if(data_get($event->modules, 'romantic_phrases') && $event->romanticPhrases->count())
+            @include('events.modules.romantic-phrases', [
+                'event'   => $event,
+                'phrases' => $event->romanticPhrases,
+            ])
+        @endif
+
+        {{-- Placeholder --}}
         <section class="bg-slate-800/40 rounded-3xl p-6 md:p-8 border border-dashed border-slate-700">
             <h2 class="text-xl font-semibold mb-2">Módulos del evento</h2>
             <p class="text-sm text-slate-300">

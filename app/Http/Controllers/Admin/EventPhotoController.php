@@ -15,15 +15,13 @@ class EventPhotoController extends Controller
     /**
      * @OA\Post(
      *     path="/api/admin/events/{event}/photos",
-     *     tags={"Eventos (Admin)"},
-     *     summary="Subir una foto a la galería de un evento",
-     *     description="Permite subir una imagen (multipart/form-data) para la galería o portada de un evento. Recomendado proteger este endpoint con autenticación (por ejemplo, auth:sanctum) para uso exclusivo del organizador o administrador.",
-     *     operationId="adminUploadEventPhoto",
+     *     summary="Sube una foto para un evento (galería, portada o dress_code)",
+     *     tags={"Admin - Fotos"},
      *     @OA\Parameter(
      *         name="event",
      *         in="path",
      *         required=true,
-     *         description="ID del evento al que se asociará la foto",
+     *         description="ID del evento",
      *         @OA\Schema(type="integer")
      *     ),
      *     @OA\RequestBody(
@@ -41,26 +39,28 @@ class EventPhotoController extends Controller
      *                 @OA\Property(
      *                     property="type",
      *                     type="string",
-     *                     description="Tipo de foto (galería o portada)",
-     *                     enum={"gallery","hero"}
+     *                     description="Tipo de foto",
+     *                     enum={"gallery","hero","dress_code"}
      *                 ),
      *                 @OA\Property(
      *                     property="caption",
      *                     type="string",
      *                     maxLength=255,
-     *                     description="Texto descriptivo opcional de la foto"
+     *                     nullable=true,
+     *                     description="Texto opcional de la foto"
      *                 ),
      *                 @OA\Property(
      *                     property="display_order",
      *                     type="integer",
-     *                     description="Orden opcional de despliegue en la galería"
+     *                     nullable=true,
+     *                     description="Orden de despliegue (si no se envía, se asigna automático)"
      *                 )
      *             )
      *         )
      *     ),
      *     @OA\Response(
      *         response=201,
-     *         description="Foto creada correctamente",
+     *         description="Foto subida correctamente",
      *         @OA\JsonContent(
      *             @OA\Property(property="id", type="integer"),
      *             @OA\Property(property="event_id", type="integer"),
@@ -74,11 +74,7 @@ class EventPhotoController extends Controller
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="Errores de validación en la carga de la foto"
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Evento no encontrado"
+     *         description="Errores de validación"
      *     )
      * )
      */
@@ -89,7 +85,7 @@ class EventPhotoController extends Controller
         // Tipo de foto: por defecto 'gallery'
         $type = $request->input('type', EventPhoto::TYPE_GALLERY);
 
-        // Orden: si no viene, tomamos el siguiente consecutivo
+        // Orden: si no viene, tomamos el siguiente consecutivo por tipo
         $displayOrder = $request->input('display_order');
 
         if ($displayOrder === null) {
@@ -98,29 +94,27 @@ class EventPhotoController extends Controller
                 ->where('type', $type)
                 ->max('display_order');
 
-            $displayOrder = ($maxOrder ?? 0) + 1;
+            $displayOrder = $maxOrder ? ($maxOrder + 1) : 1;
         }
 
-        // Guardar archivo en storage/app/public/events/{id}/photos/originals
         $disk = Storage::disk('public');
         $directory = "events/{$event->id}/photos/originals";
 
         $filename = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
-
         $filePath = $file->storeAs($directory, $filename, 'public');
 
         // Por ahora no generamos thumbnail real; usamos sólo file_path.
         $thumbnailPath = null;
 
         $photo = EventPhoto::create([
-            'event_id'      => $event->id,
-            'guest_id'      => null,
-            'type'          => $type,
-            'file_path'     => $filePath,
-            'thumbnail_path'=> $thumbnailPath,
-            'caption'       => $request->input('caption'),
-            'status'        => EventPhoto::STATUS_APPROVED,
-            'display_order' => $displayOrder,
+            'event_id'       => $event->id,
+            'guest_id'       => null,
+            'type'           => $type,
+            'file_path'      => $filePath,
+            'thumbnail_path' => $thumbnailPath,
+            'caption'        => $request->input('caption'),
+            'status'         => EventPhoto::STATUS_APPROVED,
+            'display_order'  => $displayOrder,
         ]);
 
         return response()->json([
