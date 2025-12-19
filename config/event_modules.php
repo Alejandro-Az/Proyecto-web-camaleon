@@ -1,16 +1,13 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
-    | Defaults de módulos por evento
+    | Defaults de módulos
     |--------------------------------------------------------------------------
-    | Importante: Estos defaults se usan cuando:
-    | - Un evento tiene modules = null
-    | - O falta alguna llave dentro del JSON
-    |
-    | Ajuste aquí los defaults y todo el proyecto se alinea (factory, seeders, helper).
+    | Estos defaults se aplican cuando en DB falta una llave.
+    | Event::modulesWithDefaults() y Event::normalizeModulesForStorage()
+    | los usan para evitar "llaves faltantes" y deuda técnica.
     */
     'defaults' => [
         'gallery'                => true,
@@ -19,25 +16,31 @@ return [
         'public_attendance_list' => false,
         'dress_code'             => true,
         'gifts'                  => true,
-        'guest_photos_upload'    => false,
+        'guest_photos_upload'    => true,
         'romantic_phrases'       => true,
         'countdown'              => true,
         'map'                    => true,
         'schedule'               => true,
 
-        // Nuevo / futuro
+        // ✅ NUEVO: Historia / Sobre...
         'story'                  => false,
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Aliases legacy (compatibilidad hacia atrás)
+    | Aliases legacy → llave canónica
     |--------------------------------------------------------------------------
-    | Si existen eventos viejos que guardaron llaves anteriores,
-    | aquí se mapean a la llave “canónica”.
+    | Si en algún punto usted cambia nombres de llaves, esto evita romper eventos viejos.
+    | "canónica gana sobre legacy".
     */
     'legacy_aliases' => [
+        // playlist legacy (si existía)
         'playlist_suggestions' => 'songs',
         'playlist_votes'       => 'songs',
+
+        // ✅ NUEVO: historia legacy
+        'history'  => 'story',
+        'about'    => 'story',
+        'about_us' => 'story',
     ],
 ];

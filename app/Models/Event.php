@@ -33,6 +33,7 @@ class Event extends Model
         'font_family',
         'modules',
         'settings',
+        'plan_key',
         'owner_name',
         'owner_email',
         'auto_cleanup_after_days',
@@ -58,6 +59,54 @@ class Event extends Model
     | Módulos (helper + defaults + legacy)
     |--------------------------------------------------------------------------
     */
+
+    public static function defaultPlanKey(): string
+    {
+        return (string) config('event_plans.default_plan', 'standard');
+    }
+
+    public function planKey(): ?string
+    {
+        $key = $this->plan_key;
+
+        if (!is_string($key)) {
+            return null;
+        }
+
+        $key = trim($key);
+
+        return $key !== '' ? $key : null;
+    }
+
+    public static function planAllowedModules(string $planKey): array
+    {
+        $plans = (array) config('event_plans.plans', []);
+        $plan  = (array) ($plans[$planKey] ?? $plans[self::defaultPlanKey()] ?? []);
+
+        $mods = $plan['modules'] ?? null;
+
+        return is_array($mods) ? array_values($mods) : [];
+    }
+
+    public function isModuleAvailable(string $key): bool
+    {
+        $planKey = $this->planKey();
+
+        if ($planKey === null) {
+            return true;
+        }
+
+        $allowed = self::planAllowedModules($planKey);
+
+        // fail-open si config está incompleta
+        if (empty($allowed)) {
+            return true;
+        }
+
+        return in_array($key, $allowed, true);
+    }
+
+
 
     public static function moduleDefaults(): array
     {
@@ -116,6 +165,10 @@ class Event extends Model
 
     public function isModuleEnabled(string $key, bool $fallback = false): bool
     {
+        if (!$this->isModuleAvailable($key)) {
+            return false;
+        }
+
         $modules = $this->modulesWithDefaults();
 
         if (!array_key_exists($key, $modules)) {

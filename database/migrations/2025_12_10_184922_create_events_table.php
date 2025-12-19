@@ -26,6 +26,8 @@ return new class extends Migration
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
 
+            $table->string('plan_key', 30)->nullable()->index();
+
             $table->string('theme_key', 50)->default('default');
             $table->string('primary_color', 20)->nullable();
             $table->string('secondary_color', 20)->nullable();

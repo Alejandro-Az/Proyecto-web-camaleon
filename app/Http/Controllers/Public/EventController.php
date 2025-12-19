@@ -46,23 +46,31 @@ class EventController extends Controller
                 },
                 'dressCodes' => function ($query) {
                     $query->where('is_enabled', true)
-                          ->orderBy('display_order')
-                          ->orderBy('id');
+                        ->orderBy('display_order')
+                        ->orderBy('id');
                 },
                 'romanticPhrases' => function ($query) {
                     $query->where('is_enabled', true)
-                          ->orderBy('display_order')
-                          ->orderBy('id');
+                        ->orderBy('display_order')
+                        ->orderBy('id');
                 },
                 'songs' => function ($query) {
                     $query->approved()
-                          ->orderByDesc('votes_count');
+                        ->orderByDesc('votes_count');
                 },
                 'schedules' => function ($query) {
                     $query->orderBy('starts_at')
-                          ->orderBy('display_order')
-                          ->orderBy('id');
+                        ->orderBy('display_order')
+                        ->orderBy('id');
                 },
+
+                // ✅ NUEVO: Historia / Sobre...
+                'stories' => function ($query) {
+                    $query->where('is_enabled', true)
+                        ->orderBy('display_order')
+                        ->orderBy('id');
+                },
+                'stories.examplePhoto',
             ])
             ->firstOrFail();
 
@@ -131,7 +139,7 @@ class EventController extends Controller
 
         // Regalos del evento (mesa de regalos)
         $gifts = collect();
-        if (data_get($event->modules, 'gifts')) {
+        if ($event->isModuleEnabled('gifts')) {
             $hidePurchased = (bool) data_get(
                 $event->settings,
                 'gifts_hide_purchased_from_public',

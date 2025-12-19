@@ -28,6 +28,12 @@ return new class extends Migration
             $table->text('rsvp_message')->nullable();
             $table->boolean('rsvp_public')->default(false);
 
+            $table->string('seat_label', 120)->nullable();
+
+            $table->json('dietary_tags')->nullable();
+            $table->text('dietary_notes')->nullable();
+
+
             $table->unsignedInteger('guests_confirmed')->nullable();
 
             $table->boolean('show_in_public_list')->default(false);

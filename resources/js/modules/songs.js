@@ -1,22 +1,34 @@
-/**
- * MÓDULO: Sugerencias y votos de canciones
- *
- * Este archivo NO debe importar bootstrap ni registrar DOMContentLoaded.
- * Solo exporta una función initSongsModule() para que app.js la invoque.
- */
 export default function initSongsModule() {
     const songsSection = document.querySelector('[data-module="songs"]');
     if (!songsSection) return;
 
-    // Evitar doble inicialización (por si algo llama init 2 veces)
     if (songsSection.dataset.songsInitialized === '1') return;
     songsSection.dataset.songsInitialized = '1';
+
+    const voteUrlTemplate = songsSection.dataset.songsVoteUrlTemplate || '';
 
     const alertsContainer = songsSection.querySelector('[data-song-alerts]');
     const suggestionForm  = songsSection.querySelector('[data-song-form="suggestion"]');
     const suggestionBtn   = songsSection.querySelector('[data-song-submit="suggestion"]');
     const songsList       = songsSection.querySelector('[data-song-list]');
     const emptyMessage    = songsSection.querySelector('[data-song-list-empty]');
+
+    function escapeHtml(value) {
+        const str = String(value ?? '');
+        return str
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
+
+    function safeHttpUrl(url) {
+        const str = String(url ?? '').trim();
+        if (!str) return '';
+        if (str.startsWith('http://') || str.startsWith('https://')) return str;
+        return '';
+    }
 
     function showAlert(type, message) {
         if (!alertsContainer || !message) return;
@@ -41,9 +53,23 @@ export default function initSongsModule() {
 
         alertsContainer.appendChild(div);
 
-        setTimeout(() => {
-            div.remove();
-        }, 6000);
+        setTimeout(() => div.remove(), 6000);
+    }
+
+    function buildVoteUrl(songId) {
+        const id = String(songId);
+
+        // ✅ La fuente de verdad: lo que nos da Blade
+        if (voteUrlTemplate && voteUrlTemplate.includes('__SONG__')) {
+            return voteUrlTemplate.replace('__SONG__', id);
+        }
+
+        // Fallback (por si olvidas el data-attribute)
+        if (suggestionForm?.action) {
+            return `${suggestionForm.action.replace(/\/$/, '')}/${id}/vote`;
+        }
+
+        return '';
     }
 
     async function handleSuggestionSubmit(event) {
@@ -76,63 +102,90 @@ export default function initSongsModule() {
 
             showAlert('success', data.message || 'Canción guardada correctamente.');
 
-            // Limpiar formulario
+            const csrfToken = suggestionForm.querySelector('input[name="_token"]')?.value || '';
+            const invitationCode = suggestionForm.querySelector('input[name="invitation_code"]')?.value || '';
+
             suggestionForm.reset();
 
-            if (emptyMessage) {
-                emptyMessage.remove();
-            }
+            if (emptyMessage) emptyMessage.remove();
 
             if (songsList && data.song) {
+                const songId = data.song.id;
+                const voteAction = buildVoteUrl(songId);
+
+                const title = escapeHtml(data.song.title);
+                const artist = escapeHtml(data.song.artist);
+                const messageForCouple = escapeHtml(data.song.message_for_couple);
+                const suggestedByName = escapeHtml(data.song.suggested_by_name);
+                const linkUrl = safeHttpUrl(data.song.url);
+
+                const votesCount = Number(data.song.votes_count ?? 0);
+                const votesText = `${votesCount} ${votesCount === 1 ? 'voto' : 'votos'}`;
+
+                const rightBoxHtml = invitationCode && voteAction
+                    ? `
+                        <form method="POST" action="${escapeHtml(voteAction)}" data-song-form="vote">
+                            <input type="hidden" name="_token" value="${escapeHtml(csrfToken)}">
+                            <input type="hidden" name="invitation_code" value="${escapeHtml(invitationCode)}">
+
+                            <p class="text-xs text-slate-300 mb-2" data-song-votes>${escapeHtml(votesText)}</p>
+
+                            <button
+                                type="submit"
+                                data-song-vote-button
+                                class="inline-flex items-center justify-center px-3 py-2 rounded-full text-xs font-semibold bg-sky-500 hover:bg-sky-400 text-white"
+                            >
+                                Votar por esta canción
+                            </button>
+                        </form>
+                    `
+                    : `
+                        <p class="text-xs text-slate-300 mb-1" data-song-votes>${escapeHtml(votesText)}</p>
+                        <p class="text-[11px] text-slate-400">
+                            Use su enlace de invitación<br>para votar.
+                        </p>
+                    `;
+
                 const li = document.createElement('li');
                 li.className = 'py-3 flex flex-col gap-2';
-                li.setAttribute('data-song-item-id', data.song.id);
+                li.setAttribute('data-song-item-id', songId);
 
                 li.innerHTML = `
                     <div class="flex items-start justify-between gap-3">
                         <div>
-                            <p class="text-sm font-semibold text-slate-100">
-                                ${data.song.title}
-                            </p>
-                            ${data.song.artist ? `
-                                <p class="text-xs text-slate-300">
-                                    ${data.song.artist}
-                                </p>` : ''}
+                            <p class="text-sm font-semibold text-slate-100">${title}</p>
+
+                            ${data.song.artist ? `<p class="text-xs text-slate-300">${artist}</p>` : ''}
 
                             ${data.song.message_for_couple ? `
-                                <p class="text-xs text-slate-300 mt-1 italic">
-                                    "${data.song.message_for_couple}"
-                                </p>` : ''}
+                                <p class="text-xs text-slate-300 mt-1 italic">"${messageForCouple}"</p>
+                            ` : ''}
 
                             ${data.song.suggested_by_name ? `
                                 <p class="text-xs text-slate-400 mt-1">
-                                    Sugerida por <span class="font-semibold">${data.song.suggested_by_name}</span>
-                                </p>` : ''}
+                                    Sugerida por <span class="font-semibold">${suggestedByName}</span>
+                                </p>
+                            ` : ''}
 
-                            ${data.song.url ? `
-                                <a href="${data.song.url}"
+                            ${linkUrl ? `
+                                <a href="${escapeHtml(linkUrl)}"
                                    target="_blank"
                                    rel="noopener noreferrer"
                                    class="inline-flex items-center text-[11px] text-sky-300 hover:text-sky-200 mt-1 underline">
                                     Escuchar / ver enlace
-                                </a>` : ''}
+                                </a>
+                            ` : ''}
                         </div>
 
                         <div class="text-right">
-                            <p class="text-xs text-slate-300 mb-1" data-song-votes>
-                                ${data.song.votes_count} votos
-                            </p>
-                            <p class="text-[11px] text-slate-400">
-                                Use su enlace de invitación<br>para votar.
-                            </p>
+                            ${rightBoxHtml}
                         </div>
                     </div>
                 `;
 
                 songsList.appendChild(li);
 
-                // Si su UI agrega forms de voto dentro de li, aquí se podría bindear el submit.
-                // Si no, ignore.
+                // Bindear voto al item nuevo
                 li.querySelectorAll('[data-song-form="vote"]').forEach((form) => {
                     form.addEventListener('submit', handleVoteSubmit);
                 });
@@ -160,9 +213,7 @@ export default function initSongsModule() {
 
         const formData = new FormData(form);
 
-        if (button) {
-            button.disabled = true;
-        }
+        if (button) button.disabled = true;
 
         try {
             const response = await fetch(form.action, {
@@ -182,7 +233,7 @@ export default function initSongsModule() {
             }
 
             if (votesLabel && typeof data.votes_count !== 'undefined') {
-                const votos = data.votes_count;
+                const votos = Number(data.votes_count);
                 votesLabel.textContent = `${votos} ${votos === 1 ? 'voto' : 'votos'}`;
             }
 
@@ -203,9 +254,7 @@ export default function initSongsModule() {
             console.error(error);
             showAlert('error', 'No se pudo enviar el voto. Verifique su conexión.');
         } finally {
-            if (button) {
-                button.disabled = false;
-            }
+            if (button) button.disabled = false;
         }
     }
 
@@ -213,6 +262,7 @@ export default function initSongsModule() {
         suggestionForm.addEventListener('submit', handleSuggestionSubmit);
     }
 
+    // Bind inicial
     songsSection.querySelectorAll('[data-song-form="vote"]').forEach((form) => {
         form.addEventListener('submit', handleVoteSubmit);
     });

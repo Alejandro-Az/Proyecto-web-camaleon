@@ -17,10 +17,13 @@ class EventPhoto extends Model
     |--------------------------------------------------------------------------
     */
 
-    public const TYPE_GALLERY      = 'gallery';      // fotos de galería
-    public const TYPE_HERO         = 'hero';         // foto de portada / banner
-    public const TYPE_GUEST_UPLOAD = 'guest_upload'; // fotos subidas por invitados
-    public const TYPE_DRESS_CODE   = 'dress_code';   // imágenes para código de vestimenta
+    public const TYPE_GALLERY      = 'gallery';
+    public const TYPE_HERO         = 'hero';
+    public const TYPE_GUEST_UPLOAD = 'guest_upload';
+    public const TYPE_DRESS_CODE   = 'dress_code';
+
+    // ✅ NUEVO: imágenes para el módulo Historia
+    public const TYPE_STORY        = 'story';
 
     /*
     |--------------------------------------------------------------------------
@@ -32,11 +35,6 @@ class EventPhoto extends Model
     public const STATUS_PENDING  = 'pending';
     public const STATUS_REJECTED = 'rejected';
 
-    /**
-     * Atributos asignables en masa.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'event_id',
         'guest_id',
@@ -48,11 +46,6 @@ class EventPhoto extends Model
         'display_order',
     ];
 
-    /**
-     * Casts de atributos.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'display_order' => 'integer',
     ];
@@ -66,12 +59,6 @@ class EventPhoto extends Model
     {
         return $this->belongsTo(Guest::class);
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Scopes
-    |--------------------------------------------------------------------------
-    */
 
     public function scopeApproved($query)
     {
