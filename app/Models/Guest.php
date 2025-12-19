@@ -38,6 +38,10 @@ class Guest extends Model
         'guests_confirmed',
         'show_in_public_list',
         'checked_in_at',
+
+        'seat_label',
+        'dietary_tags',
+        'dietary_notes',
     ];
 
     /**
@@ -49,6 +53,7 @@ class Guest extends Model
         'rsvp_public'         => 'boolean',
         'show_in_public_list' => 'boolean',
         'checked_in_at'       => 'datetime',
+        'dietary_tags'        => 'array',
     ];
 
     /**

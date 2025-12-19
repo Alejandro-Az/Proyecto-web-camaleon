@@ -76,12 +76,20 @@
         </header>
 
         {{-- Módulo: Cuenta regresiva --}}
-        @if(data_get($event->modules, 'countdown'))
+        @if($event->isModuleEnabled('countdown'))
             @include('events.modules.countdown', ['event' => $event])
         @endif
 
+        {{-- ✅ NUEVO: Módulo Historia / Sobre... --}}
+        @if($event->isModuleEnabled('story') && $event->stories->count())
+            @include('events.modules.story', [
+                'event'   => $event,
+                'stories' => $event->stories,
+            ])
+        @endif
+
         {{-- Módulo: Código de vestimenta --}}
-        @if(data_get($event->modules, 'dress_code') && $event->dressCodes->count())
+        @if($event->isModuleEnabled('dress_code') && $event->dressCodes->count())
             @include('events.modules.dress-code', [
                 'event'      => $event,
                 'dressCodes' => $event->dressCodes,
@@ -89,15 +97,15 @@
         @endif
 
         {{-- Módulo: Itinerario / schedule --}}
-        @if(data_get($event->modules, 'schedule') && $event->schedules->count())
+        @if($event->isModuleEnabled('schedule') && $event->schedules->count())
             @include('events.modules.schedule', [
                 'event'     => $event,
                 'schedules' => $event->schedules,
             ])
         @endif
 
-        {{-- Sección de ubicaciones (FIX: respeta modules.map) --}}
-        @if(data_get($event->modules, 'map') && $event->locations->count())
+        {{-- Sección de ubicaciones (respeta modules.map) --}}
+        @if($event->isModuleEnabled('map') && $event->locations->count())
             <section class="bg-slate-800/60 rounded-3xl p-6 md:p-8 shadow">
                 <h2 class="text-xl font-semibold mb-4">Ubicación</h2>
 
@@ -134,7 +142,7 @@
         @endif
 
         {{-- Galería de fotos --}}
-        @if(data_get($event->modules, 'gallery'))
+        @if($event->isModuleEnabled('gallery'))
             @include('events.modules.gallery', [
                 'event'         => $event,
                 'galleryPhotos' => $galleryPhotos ?? collect(),
@@ -142,7 +150,7 @@
         @endif
 
         {{-- Módulo: Fotos de invitados --}}
-        @if(data_get($event->modules, 'guest_photos_upload'))
+        @if($event->isModuleEnabled('guest_photos_upload'))
             @include('events.modules.guest-photos', [
                 'event'       => $event,
                 'guest'       => $guest ?? null,
@@ -151,7 +159,7 @@
         @endif
 
         {{-- Módulo RSVP --}}
-        @if(data_get($event->modules, 'rsvp'))
+        @if($event->isModuleEnabled('rsvp'))
             @include('events.modules.rsvp', [
                 'event'        => $event,
                 'guest'        => $guest ?? null,
@@ -160,7 +168,7 @@
         @endif
 
         {{-- Módulo: Lista pública de asistentes --}}
-        @if(data_get($event->modules, 'public_attendance_list'))
+        @if($event->isModuleEnabled('public_attendance_list'))
             @include('events.modules.attendance-list', [
                 'event'           => $event,
                 'confirmedGuests' => $confirmedGuests ?? collect(),
@@ -168,7 +176,7 @@
         @endif
 
         {{-- Módulo: Canciones y votos --}}
-        @if(data_get($event->modules, 'songs'))
+        @if($event->isModuleEnabled('songs'))
             @include('events.modules.songs', [
                 'event'                     => $event,
                 'guest'                     => $guest ?? null,
@@ -179,7 +187,7 @@
         @endif
 
         {{-- Módulo: Mesa de regalos --}}
-        @if(data_get($event->modules, 'gifts'))
+        @if($event->isModuleEnabled('gifts'))
             @include('events.modules.gifts', [
                 'event'                   => $event,
                 'gifts'                   => $gifts ?? collect(),
@@ -189,24 +197,23 @@
         @endif
 
         {{-- Módulo: Frases románticas / del evento --}}
-        @if(data_get($event->modules, 'romantic_phrases') && $event->romanticPhrases->count())
+        @if($event->isModuleEnabled('romantic_phrases') && $event->romanticPhrases->count())
             @include('events.modules.romantic-phrases', [
                 'event'   => $event,
                 'phrases' => $event->romanticPhrases,
             ])
         @endif
 
-        {{-- Placeholder --}}
-        <section class="bg-slate-800/40 rounded-3xl p-6 md:p-8 border border-dashed border-slate-700">
-            <h2 class="text-xl font-semibold mb-2">Módulos del evento</h2>
-            <p class="text-sm text-slate-300">
-                Aquí más adelante vamos a ir mostrando:
-                galería de fotos, lista de canciones sugeridas, votos,
-                código de vestimenta, regalos, subida de fotos de invitados, etc.,
-                en función de los módulos activados en
-                <code class="text-xs bg-slate-900/70 px-1 py-0.5 rounded">events.modules</code>.
-            </p>
-        </section>
+        {{-- Placeholder (solo local, para no dejar deuda UX) --}}
+        @if(app()->environment('local'))
+            <section class="bg-slate-800/40 rounded-3xl p-6 md:p-8 border border-dashed border-slate-700">
+                <h2 class="text-xl font-semibold mb-2">Módulos del evento</h2>
+                <p class="text-sm text-slate-300">
+                    Aquí más adelante vamos a ir mostrando módulos en función de
+                    <code class="text-xs bg-slate-900/70 px-1 py-0.5 rounded">events.modules</code>.
+                </p>
+            </section>
+        @endif
 
     </div>
 

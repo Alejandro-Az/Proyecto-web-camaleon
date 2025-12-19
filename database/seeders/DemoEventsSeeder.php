@@ -9,6 +9,7 @@ use App\Models\EventLocation;
 use App\Models\EventPhoto;
 use App\Models\EventSchedule;
 use App\Models\EventSong;
+use App\Models\EventStory; // ✅ NUEVO
 use App\Models\Guest;
 use App\Models\SongVote;
 use Illuminate\Database\Seeder;
@@ -18,7 +19,7 @@ use Illuminate\Support\Str;
 
 // Si en su proyecto ya existen estos modelos (por el módulo de miscelánea), úselos.
 // Si aún no los tiene en su rama, comente estos 2 use y las llamadas a los métodos
-// seedDressCodes/seedRomanticPhrases de abajo.
+// seedDressCodes/seedRomanticPhrases/seedStories de abajo.
 use App\Models\EventDressCode;
 use App\Models\EventRomanticPhrase;
 
@@ -80,6 +81,9 @@ class DemoEventsSeeder extends Seeder
                 'songs'                  => true,
                 'rsvp'                   => true,
                 'gifts'                  => true,
+
+                // ✅ NUEVO: historia ON para boda demo
+                'story'                  => true,
             ]),
 
             'settings' => [
@@ -101,6 +105,9 @@ class DemoEventsSeeder extends Seeder
                 // Fotos de invitados
                 'guest_photos_max_per_guest'         => 5,
                 'guest_photos_auto_approve'          => false,
+
+                // ✅ NUEVO (opcional): texto intro para historia
+                'story_intro'                        => 'Un poquito sobre este momento especial.',
             ],
 
             'owner_name'  => 'Ana & Luis',
@@ -347,6 +354,9 @@ class DemoEventsSeeder extends Seeder
         $this->seedDressCodes($wedding);
         $this->seedRomanticPhrases($wedding);
 
+        // ✅ NUEVO: Historia / Sobre...
+        $this->seedStories($wedding);
+
         return $wedding;
     }
 
@@ -381,6 +391,9 @@ class DemoEventsSeeder extends Seeder
                 'songs'                  => true,
                 'rsvp'                   => true,
                 'gifts'                  => true,
+
+                // ✅ NUEVO: historia OFF en XV para probar toggle
+                'story'                  => false,
             ]),
 
             'settings' => [
@@ -555,6 +568,9 @@ class DemoEventsSeeder extends Seeder
         // Módulos “miscelánea”
         $this->seedDressCodes($xv);
         $this->seedRomanticPhrases($xv);
+
+        // ✅ NUEVO: Historia (data existe aunque el módulo esté apagado; útil para panel futuro)
+        $this->seedStories($xv);
 
         return $xv;
     }
@@ -840,7 +856,6 @@ SVG;
 
     private function seedDressCodes(Event $event): void
     {
-        // 1) Creamos 2 fotos reales (SVG) en storage/public y sus registros en event_photos
         $formalPhoto = $this->createDressCodeExamplePhoto(
             $event,
             'formal',
@@ -857,7 +872,6 @@ SVG;
             2
         );
 
-        // 2) Creamos los dress codes apuntando a esas fotos (example_photo_id)
         EventDressCode::create([
             'event_id'         => $event->id,
             'title'            => 'Formal',
@@ -907,6 +921,122 @@ SVG;
             'author'        => 'Antoine de Saint-Exupéry',
             'display_order' => 3,
             'is_enabled'    => true,
+        ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ✅ NUEVO: Historia / Sobre... (Story)
+    |--------------------------------------------------------------------------
+    */
+
+    private function buildStorySvg(string $title, string $subtitle = ''): string
+    {
+        $t = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
+        $s = htmlspecialchars($subtitle, ENT_QUOTES, 'UTF-8');
+
+        return <<<SVG
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600">
+  <defs>
+    <linearGradient id="g2" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="600" fill="url(#g2)"/>
+  <rect x="60" y="60" width="1080" height="480" rx="36" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.10)"/>
+  <text x="600" y="290" text-anchor="middle" font-family="Arial, sans-serif" font-size="72" font-weight="700" fill="#f8fafc">
+    {$t}
+  </text>
+  <text x="600" y="360" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" fill="#cbd5e1">
+    {$s}
+  </text>
+</svg>
+SVG;
+    }
+
+    private function createStoryExamplePhoto(Event $event, string $slug, string $title, string $subtitle, int $displayOrder): EventPhoto
+    {
+        $typeStory = \defined(EventPhoto::class.'::TYPE_STORY')
+            ? EventPhoto::TYPE_STORY
+            : 'story';
+
+        $path = "events/{$event->id}/story/examples/{$slug}.svg";
+
+        Storage::disk('public')->put($path, $this->buildStorySvg($title, $subtitle));
+
+        return EventPhoto::create([
+            'event_id'       => $event->id,
+            'guest_id'       => null,
+            'type'           => $typeStory,
+            'file_path'      => $path,
+            'thumbnail_path' => null,
+            'caption'        => $title,
+            'status'         => EventPhoto::STATUS_APPROVED,
+            'display_order'  => $displayOrder,
+        ]);
+    }
+
+    private function seedStories(Event $event): void
+    {
+        // Wedding: 2 secciones; XV: 1 sección (demo)
+        if ($event->type === 'wedding') {
+            $photo1 = $this->createStoryExamplePhoto(
+                $event,
+                'nuestra-historia',
+                'Nuestra historia',
+                'Cómo empezó todo',
+                1
+            );
+
+            EventStory::create([
+                'event_id'         => $event->id,
+                'title'            => 'Nuestra historia',
+                'subtitle'         => 'Cómo empezó todo',
+                'body'             => "Nos conocimos en el momento menos esperado.\nDesde ese día, todo empezó a tener sentido.\n\nGracias por ser parte de este día ❤️",
+                'example_photo_id' => $photo1->id,
+                'display_order'    => 1,
+                'is_enabled'       => true,
+            ]);
+
+            $photo2 = $this->createStoryExamplePhoto(
+                $event,
+                'sobre-el-evento',
+                'Sobre el evento',
+                'Un día para celebrar',
+                2
+            );
+
+            EventStory::create([
+                'event_id'         => $event->id,
+                'title'            => 'Sobre el evento',
+                'subtitle'         => 'Un día para celebrar',
+                'body'             => "Queremos que se sienta como en casa.\nTraiga ganas de bailar, abrazar y disfrutar.",
+                'example_photo_id' => $photo2->id,
+                'display_order'    => 2,
+                'is_enabled'       => true,
+            ]);
+
+            return;
+        }
+
+        // Default (XV / otros)
+        $photo = $this->createStoryExamplePhoto(
+            $event,
+            'sobre',
+            'Sobre',
+            'Un mensaje especial',
+            1
+        );
+
+        EventStory::create([
+            'event_id'         => $event->id,
+            'title'            => 'Sobre',
+            'subtitle'         => 'Un mensaje especial',
+            'body'             => "Gracias por acompañarnos.\n¡Va a ser una noche increíble!",
+            'example_photo_id' => $photo->id,
+            'display_order'    => 1,
+            'is_enabled'       => true,
         ]);
     }
 }
