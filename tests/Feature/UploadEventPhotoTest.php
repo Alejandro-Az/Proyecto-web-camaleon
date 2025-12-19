@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Event;
 use App\Models\EventPhoto;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -18,6 +19,12 @@ class UploadEventPhotoTest extends TestCase
     {
         Storage::fake('public');
 
+        $admin = User::factory()->admin()->create([
+            'password' => 'password',
+        ]);
+
+        $token = auth('api')->login($admin);
+
         $event = Event::factory()->create([
             'type'   => 'wedding',
             'name'   => 'Evento con Galería',
@@ -27,14 +34,17 @@ class UploadEventPhotoTest extends TestCase
 
         $file = UploadedFile::fake()->image('foto-demo.jpg', 800, 600);
 
-        $response = $this->postJson(
-            route('admin.events.photos.store', ['event' => $event->id]),
-            [
-                'photo'   => $file,
-                'type'    => 'gallery',
-                'caption' => 'Foto subida desde test',
-            ]
-        );
+        $response = $this
+            ->withHeader('Authorization', "Bearer {$token}")
+            ->withHeader('Accept', 'application/json')
+            ->post(
+                route('admin.events.photos.store', ['event' => $event->id]),
+                [
+                    'photo'   => $file,
+                    'type'    => 'gallery',
+                    'caption' => 'Foto subida desde test',
+                ]
+            );
 
         $response
             ->assertStatus(201)
@@ -48,9 +58,10 @@ class UploadEventPhotoTest extends TestCase
             'event_id' => $event->id,
             'type'     => 'gallery',
             'caption'  => 'Foto subida desde test',
+            'status'   => EventPhoto::STATUS_APPROVED,
         ]);
 
-        $photo = EventPhoto::first();
+        $photo = EventPhoto::query()->where('event_id', $event->id)->first();
         $this->assertNotNull($photo);
 
         Storage::disk('public')->assertExists($photo->file_path);
