@@ -6,13 +6,15 @@ use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Siembra la base de datos de la aplicación.
-     */
     public function run(): void
     {
         $this->call([
+            DemoUsersSeeder::class,
             EventSeeders::class,
+
+            // ✅ Corre al final para asignar owner_user_id a eventos demo si aplica.
+            AssignDemoEventOwnersSeeder::class,
+
         ]);
     }
 }

@@ -17,6 +17,7 @@ class EventPhotoController extends Controller
      *     path="/api/admin/events/{event}/photos",
      *     summary="Sube una foto para un evento (galería, portada o dress_code)",
      *     tags={"Admin - Fotos"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="event",
      *         in="path",
@@ -30,31 +31,10 @@ class EventPhotoController extends Controller
      *             mediaType="multipart/form-data",
      *             @OA\Schema(
      *                 required={"photo"},
-     *                 @OA\Property(
-     *                     property="photo",
-     *                     type="string",
-     *                     format="binary",
-     *                     description="Archivo de imagen a subir"
-     *                 ),
-     *                 @OA\Property(
-     *                     property="type",
-     *                     type="string",
-     *                     description="Tipo de foto",
-     *                     enum={"gallery","hero","dress_code"}
-     *                 ),
-     *                 @OA\Property(
-     *                     property="caption",
-     *                     type="string",
-     *                     maxLength=255,
-     *                     nullable=true,
-     *                     description="Texto opcional de la foto"
-     *                 ),
-     *                 @OA\Property(
-     *                     property="display_order",
-     *                     type="integer",
-     *                     nullable=true,
-     *                     description="Orden de despliegue (si no se envía, se asigna automático)"
-     *                 )
+     *                 @OA\Property(property="photo", type="string", format="binary", description="Archivo de imagen a subir"),
+     *                 @OA\Property(property="type", type="string", enum={"gallery","hero","dress_code"}, description="Tipo de foto"),
+     *                 @OA\Property(property="caption", type="string", maxLength=255, nullable=true, description="Texto opcional de la foto"),
+     *                 @OA\Property(property="display_order", type="integer", nullable=true, description="Orden de despliegue (si no se envía, se asigna automático)")
      *             )
      *         )
      *     ),
@@ -72,20 +52,17 @@ class EventPhotoController extends Controller
      *             @OA\Property(property="thumbnail_url", type="string", nullable=true)
      *         )
      *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="Errores de validación"
-     *     )
+     *     @OA\Response(response=401, description="No autenticado"),
+     *     @OA\Response(response=403, description="Sin permisos (rol incorrecto)"),
+     *     @OA\Response(response=422, description="Errores de validación")
      * )
      */
     public function store(StoreEventPhotoRequest $request, Event $event): JsonResponse
     {
         $file = $request->file('photo');
 
-        // Tipo de foto: por defecto 'gallery'
         $type = $request->input('type', EventPhoto::TYPE_GALLERY);
 
-        // Orden: si no viene, tomamos el siguiente consecutivo por tipo
         $displayOrder = $request->input('display_order');
 
         if ($displayOrder === null) {
@@ -103,7 +80,6 @@ class EventPhotoController extends Controller
         $filename = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
         $filePath = $file->storeAs($directory, $filename, 'public');
 
-        // Por ahora no generamos thumbnail real; usamos sólo file_path.
         $thumbnailPath = null;
 
         $photo = EventPhoto::create([
@@ -114,7 +90,7 @@ class EventPhotoController extends Controller
             'thumbnail_path' => $thumbnailPath,
             'caption'        => $request->input('caption'),
             'status'         => EventPhoto::STATUS_APPROVED,
-            'display_order'  => $displayOrder,
+            'display_order'  => (int) $displayOrder,
         ]);
 
         return response()->json([
