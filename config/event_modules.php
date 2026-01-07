@@ -3,44 +3,40 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | Defaults de módulos
+    | Defaults (canónicos)
     |--------------------------------------------------------------------------
-    | Estos defaults se aplican cuando en DB falta una llave.
-    | Event::modulesWithDefaults() y Event::normalizeModulesForStorage()
-    | los usan para evitar "llaves faltantes" y deuda técnica.
+    | Valores por default cuando en DB no viene la llave.
     */
     'defaults' => [
-        'gallery'                => true,
-        'songs'                  => true,
-        'rsvp'                   => true,
         'public_attendance_list' => false,
-        'dress_code'             => true,
-        'gifts'                  => true,
         'guest_photos_upload'    => true,
         'romantic_phrases'       => true,
+        'dress_code'             => true,
         'countdown'              => true,
         'map'                    => true,
         'schedule'               => true,
-
-        // ✅ NUEVO: Historia / Sobre...
+        'gallery'                => true,
+        'songs'                  => true,
+        'rsvp'                   => true,
+        'gifts'                  => true,
         'story'                  => false,
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Aliases legacy → llave canónica
+    | Aliases legacy => canonical
     |--------------------------------------------------------------------------
-    | Si en algún punto usted cambia nombres de llaves, esto evita romper eventos viejos.
-    | "canónica gana sobre legacy".
     */
-    'legacy_aliases' => [
-        // playlist legacy (si existía)
+    'aliases' => [
+        // ✅ el que te está fallando en tests:
         'playlist_suggestions' => 'songs',
-        'playlist_votes'       => 'songs',
 
-        // ✅ NUEVO: historia legacy
-        'history'  => 'story',
-        'about'    => 'story',
-        'about_us' => 'story',
+        // (Opcionales útiles si tu repo trae llaves viejas)
+        'playlist'             => 'songs',
+        'photo_gallery'        => 'gallery',
+        'guest_photos'         => 'guest_photos_upload',
+    ],
+    'legacy_aliases' => [
+        'playlist_suggestions' => 'songs',
     ],
 ];

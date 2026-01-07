@@ -31,6 +31,7 @@ class EventFactory extends Factory
             'secondary_color' => '#0f172a',
             'accent_color'    => '#f9a8d4',
             'font_family'     => 'Playfair Display',
+            'plan_key' => Event::PLAN_PREMIUM,
 
             // 🔒 Normalizado (sin legacy keys)
             'modules' => Event::normalizeModulesForStorage([]),
