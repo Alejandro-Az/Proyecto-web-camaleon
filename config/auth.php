@@ -8,12 +8,17 @@ return [
     ],
 
     'guards' => [
+        // Público / web general
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
         ],
 
-        // ✅ JWT (tymon/jwt-auth)
+        'client' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
+
         'api' => [
             'driver' => 'jwt',
             'provider' => 'users',

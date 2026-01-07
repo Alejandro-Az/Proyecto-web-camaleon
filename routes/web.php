@@ -8,6 +8,7 @@ use App\Http\Controllers\Public\GuestPhotoController;
 
 require base_path('routes/modules/gifts_public.php');
 require base_path('routes/modules/gifts_admin.php');
+require base_path('routes/panel.php');
 
 Route::get('/', function () {
     return view('welcome');

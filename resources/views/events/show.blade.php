@@ -5,27 +5,17 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $event->name }} | Eventos Camaleón</title>
 
-    @vite([
-        'resources/css/app.css',
-        'resources/js/app.js',
-        'resources/js/guest-photos.js',
-    ])
+    @if(!app()->runningUnitTests())
+        @vite([
+            'resources/css/app.css',
+            'resources/js/app.js',
+            'resources/js/guest-photos.js',
+        ])
+    @endif
 </head>
 <body class="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950 text-slate-100">
 
     <div class="max-w-5xl mx-auto px-4 py-10 space-y-8">
-
-        @php
-            /** @var \App\Models\Event $event */
-
-            $heroPhoto = $heroPhoto
-                ?? $event->photos
-                    ->where('type', \App\Models\EventPhoto::TYPE_HERO)
-                    ->where('status', \App\Models\EventPhoto::STATUS_APPROVED)
-                    ->sortBy('display_order')
-                    ->sortBy('id')
-                    ->first();
-        @endphp
 
         <header class="relative rounded-3xl shadow-lg overflow-hidden bg-slate-800/70 backdrop-blur">
             @if($heroPhoto)
@@ -204,7 +194,7 @@
             ])
         @endif
 
-        {{-- Placeholder (solo local, para no dejar deuda UX) --}}
+        {{-- Placeholder (solo local) --}}
         @if(app()->environment('local'))
             <section class="bg-slate-800/40 rounded-3xl p-6 md:p-8 border border-dashed border-slate-700">
                 <h2 class="text-xl font-semibold mb-2">Módulos del evento</h2>

@@ -41,6 +41,9 @@ return new class extends Migration
             $table->string('owner_name')->nullable();
             $table->string('owner_email')->nullable();
 
+            $table->unsignedBigInteger('owner_user_id')->nullable()->index();
+            $table->foreign('owner_user_id')->references('id')->on('users')->nullOnDelete();
+
             $table->unsignedInteger('auto_cleanup_after_days')->nullable();
 
             $table->timestamps();
