@@ -18,5 +18,8 @@ Route::prefix('panel')->name('client.')->group(function () {
         Route::get('/', fn () => redirect('/panel/eventos'))->name('home');
 
         Route::get('eventos', [EventController::class, 'index'])->name('events.index');
+        
+        Route::get('eventos/{eventId}', [EventController::class, 'show'])->name('events.show');
+
     });
 });
