@@ -118,6 +118,28 @@ class Event extends Model
         return data_get($this->settings ?? [], $key, $default);
     }
 
+    public function getPaletteKeyAttribute(): string
+    {
+        $palette = $this->getSetting('theme_palette', 'tuscan');
+        $palettes = config('themes.palettes', []);
+        return array_key_exists($palette, $palettes) ? $palette : 'tuscan';
+    }
+
+    public function getPaletteConfigAttribute(): array
+    {
+        $palettes = config('themes.palettes', []);
+        return $palettes[$this->palette_key] ?? $palettes['tuscan'];
+    }
+
+    public function getPaletteStyleAttribute(): string
+    {
+        $config = $this->palette_config;
+        return sprintf(
+            '--bg: %s; --surface: %s; --surface-alt: %s; --ink: %s; --ink-soft: %s; --ink-muted: %s; --rule: %s; --accent: %s; --accent-soft: %s; --accent-ink: %s; --leaf: %s; --sand: %s; --serif: %s; --sans: %s;',
+            $config['bg'], $config['surface'], $config['surfaceAlt'], $config['ink'], $config['inkSoft'], $config['inkMuted'], $config['rule'], $config['accent'], $config['accentSoft'], $config['accentInk'], $config['leaf'], $config['sand'], $config['serif'], $config['sans']
+        );
+    }
+
     /**
      * Defaults + módulos guardados + mapeo legacy → canonical.
      *

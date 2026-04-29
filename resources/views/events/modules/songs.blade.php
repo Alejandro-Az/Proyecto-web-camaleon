@@ -1,6 +1,7 @@
-<section id="playlist"
-         class="bg-slate-800/60 rounded-3xl p-6 md:p-8 shadow space-y-6"
-         data-module="songs">
+<div style="padding: 80px 24px; ">
+    <div style="max-width: 1100px; margin: 0 auto;">
+        <div style="text-align: center; margin-bottom: 50px;"><div class="cml-eyebrow" style="margin-bottom: 14px;">Música</div><h2 class="cml-serif text-4xl italic text-[var(--ink)]">Pide tu canción favorita</h2><div class="cml-divider max-w-[80px] mx-auto mt-6 text-[var(--accent)]"><i data-lucide="leaf" class="w-4 h-4 mx-auto"></i></div></div>
+
     @php
         $playlistEnabled        = data_get($event->settings, 'playlist_enabled', true);
         $allowGuestAddSongs     = data_get($event->settings, 'playlist_allow_guests_to_add_songs', true);
@@ -39,13 +40,13 @@
 
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
-            <h2 class="text-xl font-semibold">Canciones que no pueden faltar</h2>
-            <p class="text-sm text-slate-300">
+            
+            <p class="text-sm text-[var(--ink-soft)]">
                 Sugiera canciones para la fiesta y vote por sus favoritas.
             </p>
         </div>
         @if($guest && (!is_null($guestSongSuggestionsCount) || !is_null($guestVotesCount)))
-            <div class="text-right text-xs text-slate-300">
+            <div class="text-right text-xs text-[var(--ink-soft)]">
                 @if(!is_null($guestSongSuggestionsCount))
                     <p>
                         Canciones sugeridas: <span class="font-semibold">{{ $guestSongSuggestionsCount }}</span>
@@ -67,7 +68,7 @@
     </div>
 
     @if(! $playlistEnabled)
-        <p class="text-sm text-slate-300">
+        <p class="text-sm text-[var(--ink-soft)]">
             La lista de reproducción no está habilitada para este evento.
         </p>
     @else
@@ -77,17 +78,17 @@
                 <h3 class="text-lg font-semibold">Sugerir una canción</h3>
 
                 @if(! $guest)
-                    <p class="text-sm text-slate-300">
+                    <p class="text-sm text-[var(--ink-soft)]">
                         Para sugerir canciones, utilice su enlace personalizado de invitación
                         (el que incluye su código único).
                     </p>
                 @elseif(! $allowGuestAddSongs)
-                    <p class="text-sm text-slate-300">
+                    <p class="text-sm text-[var(--ink-soft)]">
                         Por el momento, las sugerencias de canciones están deshabilitadas para este evento.
                     </p>
                 @else
                     @if($maxSongsPerGuest)
-                        <p class="text-xs text-slate-400">
+                        <p class="text-xs text-[var(--ink-muted)]">
                             Puede sugerir hasta {{ $maxSongsPerGuest }} canción(es) con esta invitación.
                         </p>
                     @endif
@@ -107,7 +108,7 @@
                                 type="text"
                                 name="title"
                                 value="{{ old('title') }}"
-                                class="w-full rounded-2xl bg-slate-900/70 border border-slate-600 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                class="cml-input"
                                 required
                             >
                             @error('title')
@@ -122,7 +123,7 @@
                                 type="text"
                                 name="artist"
                                 value="{{ old('artist') }}"
-                                class="w-full rounded-2xl bg-slate-900/70 border border-slate-600 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                class="cml-input"
                             >
                             @error('artist')
                                 <p class="text-xs text-red-300 mt-1">{{ $message }}</p>
@@ -138,7 +139,7 @@
                                 type="url"
                                 name="url"
                                 value="{{ old('url') }}"
-                                class="w-full rounded-2xl bg-slate-900/70 border border-slate-600 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                class="cml-input"
                                 placeholder="https://..."
                             >
                             @error('url')
@@ -154,7 +155,7 @@
                                 id="message_for_couple"
                                 name="message_for_couple"
                                 rows="3"
-                                class="w-full rounded-2xl bg-slate-900/70 border border-slate-600 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                class="cml-input"
                             >{{ old('message_for_couple') }}</textarea>
                             @error('message_for_couple')
                                 <p class="text-xs text-red-300 mt-1">{{ $message }}</p>
@@ -168,9 +169,9 @@
                                 name="show_author"
                                 value="1"
                                 @checked(old('show_author', true))
-                                class="mt-1 rounded border-slate-500 text-pink-500 focus:ring-pink-500"
+                                class="mt-1 rounded border-[var(--rule)] text-[var(--accent)] focus:ring-pink-500"
                             >
-                            <label for="show_author" class="text-sm text-slate-200">
+                            <label for="show_author" class="text-sm text-[var(--ink)]">
                                 Acepto que mi nombre aparezca junto a esta canción.
                             </label>
                         </div>
@@ -178,7 +179,7 @@
                         <div>
                             <button
                                 type="submit"
-                                class="inline-flex items-center justify-center px-4 py-2 rounded-full bg-pink-500 hover:bg-pink-400 text-sm font-semibold shadow"
+                                class="cml-btn cml-btn--accent"
                                 data-song-submit="suggestion">
                                 Enviar sugerencia
                             </button>
@@ -192,37 +193,37 @@
                 <h3 class="text-lg font-semibold">Lista de canciones sugeridas</h3>
 
                 @if($event->songs->isEmpty())
-                    <p class="text-sm text-slate-300" data-song-list-empty>
+                    <p class="text-sm text-[var(--ink-soft)]" data-song-list-empty>
                         Aún no hay canciones sugeridas. ¡Sea la primera persona en agregar una!
                     </p>
                 @endif
 
-                <ul class="divide-y divide-slate-700/60" data-song-list>
+                <ul data-song-list style="background: var(--surface); border: 1px solid var(--rule); padding: 4px 0;">
                     @foreach($event->songs as $song)
                         @php
                             $hasVoted = $guest && in_array($song->id, $votedSongIds ?? []);
                         @endphp
-                        <li class="py-3 flex flex-col gap-2" data-song-item-id="{{ $song->id }}">
+                        <li class="flex flex-col gap-2" data-song-item-id="{{ $song->id }}" style="padding: 14px 20px; border-bottom: 1px solid var(--rule);">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
-                                    <p class="text-sm font-semibold text-slate-100">
+                                    <p class="text-sm font-semibold text-[var(--ink)]">
                                         {{ $song->title }}
                                     </p>
 
                                     @if($song->artist)
-                                        <p class="text-xs text-slate-300">
+                                        <p class="text-xs text-[var(--ink-soft)]">
                                             {{ $song->artist }}
                                         </p>
                                     @endif
 
                                     @if(!empty($song->message_for_couple))
-                                        <p class="text-xs text-slate-300 mt-1 italic">
+                                        <p class="text-xs text-[var(--ink-soft)] mt-1 italic">
                                             “{{ $song->message_for_couple }}”
                                         </p>
                                     @endif
 
                                     @if($showSongAuthorGlobally && $song->show_author && $song->suggestedBy)
-                                        <p class="text-xs text-slate-400 mt-1">
+                                        <p class="text-xs text-[var(--ink-muted)] mt-1">
                                             Sugerida por <span class="font-semibold">{{ $song->suggestedBy->name }}</span>
                                         </p>
                                     @endif
@@ -239,12 +240,12 @@
                                 </div>
 
                                 <div class="text-right">
-                                    <p class="text-xs text-slate-300 mb-1" data-song-votes>
+                                    <p class="text-xs text-[var(--ink-soft)] mb-1" data-song-votes>
                                         {{ $song->votes_count }} {{ $song->votes_count === 1 ? 'voto' : 'votos' }}
                                     </p>
 
                                     @if(! $guest)
-                                        <p class="text-[11px] text-slate-400">
+                                        <p class="text-[11px] text-[var(--ink-muted)]">
                                             Use su enlace de invitación<br>para votar.
                                         </p>
                                     @else
@@ -255,8 +256,8 @@
                                             <input type="hidden" name="invitation_code" value="{{ $guestInvitationCode }}">
                                             <button
                                                 type="submit"
-                                                class="inline-flex items-center justify-center px-3 py-1.5 rounded-full text-[11px] font-semibold shadow
-                                                {{ $hasVoted ? 'bg-slate-700 text-slate-100 hover:bg-slate-600' : 'bg-sky-500 text-white hover:bg-sky-400' }}"
+                                                class="{{ $hasVoted ? 'cml-btn cml-btn--ghost' : 'cml-btn cml-btn--accent' }}"
+                                                style="padding: 8px 14px; font-size: 11px;"
                                                 data-song-vote-button>
                                                 {{ $hasVoted ? 'Quitar mi voto' : 'Votar por esta canción' }}
                                             </button>
@@ -270,4 +271,6 @@
             </div>
         </div>
     @endif
-</section>
+
+    </div>
+</div>

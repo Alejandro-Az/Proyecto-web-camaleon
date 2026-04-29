@@ -1,3 +1,6 @@
+<div style="padding: 80px 24px; background: var(--surface-alt);">
+    <div style="max-width: 1100px; margin: 0 auto;">
+        <div style="text-align: center; margin-bottom: 50px;"><div class="cml-eyebrow" style="margin-bottom: 14px;">Galería compartida</div><h2 class="cml-serif text-4xl italic text-[var(--ink)]">Memorias de los invitados</h2><div class="cml-divider max-w-[80px] mx-auto mt-6 text-[var(--accent)]"><i data-lucide="leaf" class="w-4 h-4 mx-auto"></i></div></div>
 {{-- resources/views/events/modules/gallery.blade.php --}}
 
 @php
@@ -6,21 +9,19 @@
 @endphp
 
 @if($galleryPhotos->isNotEmpty())
-    <section class="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-6 md:p-8 shadow-sm mb-8">
+    
         <div class="flex items-baseline justify-between gap-4 mb-4">
             <div>
-                <h2 class="text-xl md:text-2xl font-semibold text-slate-50">
-                    Galería de fotos
-                </h2>
-                <p class="text-sm text-slate-300 mt-1">
+                
+                <p class="text-sm text-[var(--ink-soft)] mt-1">
                     Algunos momentos especiales del evento.
                 </p>
             </div>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
             @foreach($galleryPhotos as $photo)
-                <figure class="relative overflow-hidden rounded-xl bg-slate-900/60 border border-slate-700/60">
+                <figure class="relative overflow-hidden cml-card" style="border-radius: 0;">
                     @php
                         $url = \Illuminate\Support\Facades\Storage::disk('public')->url(
                             $photo->thumbnail_path ?: $photo->file_path
@@ -31,18 +32,19 @@
                         src="{{ $url }}"
                         alt="{{ $photo->caption ?: 'Foto del evento' }}"
                         loading="lazy"
-                        class="w-full h-32 md:h-40 lg:h-48 object-cover transition-transform duration-200 hover:scale-105"
+                        class="w-full h-40 md:h-52 object-cover"
                     >
 
                     @if($photo->caption)
-                        <figcaption class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent px-3 py-2">
-                            <p class="text-xs md:text-sm text-slate-100 line-clamp-2">
-                                {{ $photo->caption }}
-                            </p>
+                        <figcaption class="absolute inset-x-0 bottom-0 px-3 py-2" style="background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 100%);">
+                            <p class="cml-sans text-xs text-white line-clamp-2">{{ $photo->caption }}</p>
                         </figcaption>
                     @endif
                 </figure>
             @endforeach
         </div>
-    </section>
+    </div>
 @endif
+
+    </div>
+</div>

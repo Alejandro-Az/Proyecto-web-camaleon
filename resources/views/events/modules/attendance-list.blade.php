@@ -1,7 +1,7 @@
 @if($confirmedGuests->isEmpty())
-    <section class="bg-slate-800/40 rounded-3xl p-6 md:p-8 border border-dashed border-slate-700">
+    <section class="bg-[var(--surface-alt)] rounded-3xl p-6 md:p-8 border border-dashed border-[var(--rule)]">
         <h2 class="text-xl font-semibold mb-2">Lista de asistentes confirmados</h2>
-        <p class="text-sm text-slate-300">
+        <p class="text-sm text-[var(--ink-soft)]">
             Aún no hay asistentes que hayan confirmado su asistencia y aceptado aparecer en la lista pública.
         </p>
     </section>
@@ -19,17 +19,17 @@
         }, 0);
     @endphp
 
-    <section class="bg-slate-800/60 rounded-3xl p-6 md:p-8 shadow space-y-4">
+    <section class="bg-[var(--surface)] border border-[var(--rule)] rounded-3xl p-6 md:p-8  space-y-4">
         <div class="flex items-center justify-between gap-3">
             <div>
                 <h2 class="text-xl font-semibold">Lista de asistentes confirmados</h2>
-                <p class="text-sm text-slate-300">
+                <p class="text-sm text-[var(--ink-soft)]">
                     Mostramos sólo a quienes han confirmado su asistencia y aceptado aparecer en esta lista.
                 </p>
             </div>
         </div>
 
-        <p class="text-sm text-slate-200">
+        <p class="text-sm text-[var(--ink)]">
             Hasta ahora, <span class="font-semibold">{{ $confirmedGuests->count() }}</span>
             invitado(s) han confirmado su asistencia, con un total aproximado de
             <span class="font-semibold">{{ $totalGuests }}</span> persona(s).
@@ -39,16 +39,16 @@
             @foreach($confirmedGuests as $guest)
                 <li class="py-3 flex items-center justify-between gap-4">
                     <div>
-                        <p class="text-sm font-medium text-slate-100">
+                        <p class="text-sm font-medium text-[var(--ink)]">
                             {{ $guest->name }}
                         </p>
                         @if($guest->rsvp_message)
-                            <p class="text-xs text-slate-300 italic">
+                            <p class="text-xs text-[var(--ink-soft)] italic">
                                 “{{ $guest->rsvp_message }}”
                             </p>
                         @endif
                     </div>
-                    <div class="text-right text-xs text-slate-300">
+                    <div class="text-right text-xs text-[var(--ink-soft)]">
                         <p>
                             {{ $guest->guests_confirmed ?? 1 }}
                             {{ ($guest->guests_confirmed ?? 1) == 1 ? 'persona' : 'personas' }}

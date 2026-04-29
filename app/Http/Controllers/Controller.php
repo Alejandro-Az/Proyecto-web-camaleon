@@ -7,12 +7,6 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 
 /**
- * @OA\Info(
- *     version="1.0.0",
- *     title="API Eventos Camaleón",
- *     description="Documentación de los endpoints de la plataforma de eventos tipo camaleón (boda, XV, cumpleaños, etc.)."
- * )
- *
  * @OA\Server(
  *     url=L5_SWAGGER_CONST_HOST,
  *     description="Servidor base de la API"

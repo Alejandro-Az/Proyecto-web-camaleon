@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\EventGiftAdminController;
 
-Route::middleware(['auth'])
+Route::middleware(['auth:api', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {

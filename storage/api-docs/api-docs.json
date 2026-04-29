@@ -1,8 +1,7 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "API Eventos Camaleón",
-        "description": "Documentación de los endpoints de la plataforma de eventos tipo camaleón (boda, XV, cumpleaños, etc.).",
+        "title": "Camaleón API",
         "version": "1.0.0"
     },
     "servers": [
@@ -12,19 +11,90 @@
         }
     ],
     "paths": {
-        "/api/admin/events/{event}/photos": {
+        "/admin/eventos/{event}/regalos/{gift}/marcar-comprado": {
             "post": {
                 "tags": [
-                    "Eventos (Admin)"
+                    "Admin Regalos"
                 ],
-                "summary": "Subir una foto a la galería de un evento",
-                "description": "Permite subir una imagen (multipart/form-data) para la galería o portada de un evento. Recomendado proteger este endpoint con autenticación (por ejemplo, auth:sanctum) para uso exclusivo del organizador o administrador.",
-                "operationId": "adminUploadEventPhoto",
+                "summary": "Marca un regalo como comprado",
+                "description": "Marca el regalo como comprado, actualiza claims reservados y recalcula cantidades reservadas.",
+                "operationId": "c408a62f2634769d66b1b4bd749605a1",
                 "parameters": [
                     {
                         "name": "event",
                         "in": "path",
-                        "description": "ID del evento al que se asociará la foto",
+                        "description": "ID del evento",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "gift",
+                        "in": "path",
+                        "description": "ID del regalo",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Regalo marcado como comprado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Regalo marcado como comprado."
+                                        },
+                                        "gift_id": {
+                                            "type": "integer",
+                                            "example": 10
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "purchased"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    },
+                    "403": {
+                        "description": "Sin permisos"
+                    },
+                    "404": {
+                        "description": "Evento o regalo no encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/events/{event}/photos": {
+            "post": {
+                "tags": [
+                    "Admin - Fotos"
+                ],
+                "summary": "Sube una foto para un evento (galería, portada o dress_code)",
+                "operationId": "382b9f91a0a195e7f93e91c9a921e90b",
+                "parameters": [
+                    {
+                        "name": "event",
+                        "in": "path",
+                        "description": "ID del evento",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -46,21 +116,24 @@
                                         "format": "binary"
                                     },
                                     "type": {
-                                        "description": "Tipo de foto (galería o portada)",
+                                        "description": "Tipo de foto",
                                         "type": "string",
                                         "enum": [
                                             "gallery",
-                                            "hero"
+                                            "hero",
+                                            "dress_code"
                                         ]
                                     },
                                     "caption": {
-                                        "description": "Texto descriptivo opcional de la foto",
+                                        "description": "Texto opcional de la foto",
                                         "type": "string",
-                                        "maxLength": 255
+                                        "maxLength": 255,
+                                        "nullable": true
                                     },
                                     "display_order": {
-                                        "description": "Orden opcional de despliegue en la galería",
-                                        "type": "integer"
+                                        "description": "Orden de despliegue (si no se envía, se asigna automático)",
+                                        "type": "integer",
+                                        "nullable": true
                                     }
                                 },
                                 "type": "object"
@@ -70,7 +143,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Foto creada correctamente",
+                        "description": "Foto subida correctamente",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -107,13 +180,194 @@
                             }
                         }
                     },
-                    "422": {
-                        "description": "Errores de validación en la carga de la foto"
+                    "401": {
+                        "description": "No autenticado"
                     },
-                    "404": {
-                        "description": "Evento no encontrado"
+                    "403": {
+                        "description": "Sin permisos (rol incorrecto)"
+                    },
+                    "422": {
+                        "description": "Errores de validación"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Inicia sesión y retorna token JWT",
+                "operationId": "dd51a484b7fa0f97c7680fdbde14cf5f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "admin.demo@camaleon.test"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Token emitido",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string"
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "bearer"
+                                        },
+                                        "expires_in": {
+                                            "type": "integer",
+                                            "example": 3600
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Credenciales inválidas"
+                    },
+                    "422": {
+                        "description": "Errores de validación"
                     }
                 }
+            }
+        },
+        "/api/auth/me": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Retorna el usuario autenticado",
+                "operationId": "b5de204f5e452ef51327c691aa99e77c",
+                "responses": {
+                    "200": {
+                        "description": "Usuario actual",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "email": {
+                                            "type": "string"
+                                        },
+                                        "role": {
+                                            "type": "string",
+                                            "example": "admin"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Invalida el token actual",
+                "operationId": "df9bdc6c7a6d9f20b983526b2ec0f698",
+                "responses": {
+                    "200": {
+                        "description": "Logout OK"
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/refresh": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Refresca el token JWT",
+                "operationId": "30c20c52f5f72828d8c531fd7c9ea3e7",
+                "responses": {
+                    "200": {
+                        "description": "Token refrescado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string"
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "bearer"
+                                        },
+                                        "expires_in": {
+                                            "type": "integer",
+                                            "example": 3600
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/eventos/{slug}": {
@@ -344,6 +598,16 @@
                                     "show_in_public_list": {
                                         "type": "boolean",
                                         "example": true
+                                    },
+                                    "dietary_tags": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "dietary_notes": {
+                                        "type": "string",
+                                        "example": "Alergia fuerte al cacahuate"
                                     }
                                 },
                                 "type": "object"
@@ -500,7 +764,21 @@
             }
         }
     },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Use: Authorization: Bearer {token}",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
     "tags": [
+        {
+            "name": "Auth",
+            "description": "Autenticación JWT"
+        },
         {
             "name": "Eventos Públicos",
             "description": "Endpoints públicos relacionados con la visualización de eventos."
@@ -510,8 +788,12 @@
             "description": "Endpoints para la confirmación de asistencia de invitados (RSVP)."
         },
         {
-            "name": "Eventos (Admin)",
-            "description": "Eventos (Admin)"
+            "name": "Admin Regalos",
+            "description": "Admin Regalos"
+        },
+        {
+            "name": "Admin - Fotos",
+            "description": "Admin - Fotos"
         },
         {
             "name": "Regalos Públicos",

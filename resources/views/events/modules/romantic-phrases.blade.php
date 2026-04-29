@@ -16,20 +16,20 @@
     }
 @endphp
 
-<section class="bg-slate-800/60 rounded-3xl p-6 md:p-8 shadow">
+<section class="bg-[var(--surface)] border border-[var(--rule)] rounded-3xl p-6 md:p-8 ">
     <div class="mb-4">
         <h2 class="text-xl font-semibold">{{ $title }}</h2>
-        <p class="text-sm text-slate-300">{{ $subtitle }}</p>
+        <p class="text-sm text-[var(--ink-soft)]">{{ $subtitle }}</p>
     </div>
 
     <div class="grid md:grid-cols-2 gap-4">
         @foreach($list as $row)
-            <figure class="rounded-2xl bg-slate-900/60 border border-slate-700 p-4">
-                <blockquote class="text-slate-100 text-sm leading-relaxed">
+            <figure class="rounded-2xl bg-[var(--surface)]/60 border border-[var(--rule)] p-4">
+                <blockquote class="text-[var(--ink)] text-sm leading-relaxed">
                     “{{ $row->phrase }}”
                 </blockquote>
                 @if($row->author)
-                    <figcaption class="text-xs text-slate-400 mt-2">— {{ $row->author }}</figcaption>
+                    <figcaption class="text-xs text-[var(--ink-muted)] mt-2">— {{ $row->author }}</figcaption>
                 @endif
             </figure>
         @endforeach

@@ -9,7 +9,7 @@
         @vite(['resources/css/app.css','resources/js/app.js'])
     @endif
 </head>
-<body class="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950 text-slate-100">
+<body class="min-h-screen cml" style="--bg: #F5F6F8; --surface: #FFFFFF; --surface-alt: #ECEEF2; --ink: #11151D; --ink-soft: #3F4754; --ink-muted: #7B8392; --rule: #DCE0E7; --accent: #2F4858; --accent-soft: #A6B5C2; --accent-ink: #1A2730; --leaf: #506470; --sand: #E4E7EC; --serif: "Cormorant Garamond", Georgia, serif; --sans: "Inter", system-ui, sans-serif; ">
     <div class="max-w-6xl mx-auto px-4 py-8 space-y-6">
 
         @php
@@ -27,19 +27,19 @@
         <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
                 <h1 class="text-2xl font-semibold">Panel del cliente</h1>
-                <p class="text-slate-300 text-sm">{{ $clientName }}</p>
+                <p class="text-[var(--ink-muted)] text-sm">{{ $clientName }}</p>
             </div>
 
             <nav class="flex flex-wrap gap-2">
                 <a href="{{ $eventsUrl }}"
-                   class="px-4 py-2 rounded-full bg-slate-800 hover:bg-slate-700 text-sm font-semibold">
+                   class="px-4 py-2 rounded-full bg-[var(--surface-alt)] hover:bg-slate-700 text-sm font-semibold">
                     Mis eventos
                 </a>
 
                 <form method="POST" action="{{ $logoutUrl }}">
                     @csrf
                     <button type="submit"
-                            class="px-4 py-2 rounded-full bg-pink-500 hover:bg-pink-400 text-sm font-semibold shadow">
+                            class="px-4 py-2 rounded-full bg-[var(--accent)] hover:brightness-110 text-white text-sm font-semibold shadow">
                         Salir
                     </button>
                 </form>

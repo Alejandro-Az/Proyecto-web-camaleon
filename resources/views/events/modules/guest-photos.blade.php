@@ -1,9 +1,12 @@
+<div style="padding: 80px 24px; ">
+    <div style="max-width: 1100px; margin: 0 auto;">
+        <div style="text-align: center; margin-bottom: 50px;"><div class="cml-eyebrow" style="margin-bottom: 14px;">Tus memorias</div><h2 class="cml-serif text-4xl italic text-[var(--ink)]">Fotos de invitados</h2><div class="cml-divider max-w-[80px] mx-auto mt-6 text-[var(--accent)]"><i data-lucide="leaf" class="w-4 h-4 mx-auto"></i></div></div>
 @php
     $maxPhotosPerGuest = (int) data_get($event->settings ?? [], 'guest_photos_max_per_guest', 5);
     $hasServerErrors = $errors->has('invitation_code') || $errors->has('photo');
 @endphp
 
-<section class="bg-slate-800/60 rounded-3xl p-6 md:p-8 shadow space-y-6">
+
 
     {{-- Mensaje de éxito (usado por fallback y por JS) --}}
     <div
@@ -29,10 +32,8 @@
     </div>
 
     <header>
-        <h2 class="text-xl font-semibold mb-2">
-            Fotos de invitados
-        </h2>
-        <p class="text-sm text-slate-300">
+        
+        <p class="text-sm text-[var(--ink-soft)]">
             Comparta sus mejores momentos del evento. Puede subir hasta
             <span class="font-medium">{{ $maxPhotosPerGuest }}</span>
             fotos por invitación.
@@ -40,14 +41,14 @@
     </header>
 
     {{-- Formulario de subida --}}
-    <div class="bg-slate-900/40 rounded-2xl p-4 border border-slate-700">
+    <div class="bg-[var(--surface)]/40 rounded-2xl p-4 border border-[var(--rule)]">
         @if($guest)
-            <p class="text-sm text-slate-300 mb-3">
+            <p class="text-sm text-[var(--ink-soft)] mb-3">
                 Está subiendo fotos como
                 <span class="font-semibold">{{ $guest->name }}</span>.
             </p>
         @else
-            <p class="text-sm text-slate-300 mb-3">
+            <p class="text-sm text-[var(--ink-soft)] mb-3">
                 Ingrese el código de invitación que recibió para subir sus fotos.
             </p>
         @endif
@@ -65,7 +66,7 @@
                 <input type="hidden" name="invitation_code" value="{{ $guest->invitation_code }}">
             @else
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">
+                    <label class="block text-xs font-semibold text-[var(--ink-soft)] mb-1">
                         Código de invitación
                     </label>
                     <input
@@ -73,14 +74,14 @@
                         name="invitation_code"
                         required
                         value="{{ old('invitation_code') }}"
-                        class="w-full rounded-xl bg-slate-900/80 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
+                        class="w-full rounded-xl bg-[var(--surface)]/80 border border-[var(--rule)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
                         placeholder="Ej. DEMO1234"
                     >
                 </div>
             @endif
 
             <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1">
+                <label class="block text-xs font-semibold text-[var(--ink-soft)] mb-1">
                     Foto
                 </label>
                 <input
@@ -88,15 +89,15 @@
                     name="photo"
                     accept="image/*"
                     required
-                    class="w-full text-sm text-slate-200 file:mr-3 file:py-2 file:px-3 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-500 file:text-white hover:file:bg-pink-400"
+                    class="w-full text-sm text-[var(--ink)] file:mr-3 file:py-2 file:px-3 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[var(--accent)] text-white file:text-white hover:file:bg-pink-400"
                 >
-                <p class="text-xs text-slate-400 mt-1">
+                <p class="text-xs text-[var(--ink-muted)] mt-1">
                     Tamaño máximo aproximado: 4 MB.
                 </p>
             </div>
 
             <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1">
+                <label class="block text-xs font-semibold text-[var(--ink-soft)] mb-1">
                     Descripción (opcional)
                 </label>
                 <input
@@ -104,14 +105,14 @@
                     name="caption"
                     maxlength="255"
                     value="{{ old('caption') }}"
-                    class="w-full rounded-xl bg-slate-900/80 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
+                    class="w-full rounded-xl bg-[var(--surface)]/80 border border-[var(--rule)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
                     placeholder="Ej. Selfie en la pista de baile"
                 >
             </div>
 
             <button
                 type="submit"
-                class="inline-flex items-center justify-center px-4 py-2 rounded-full bg-pink-500 hover:bg-pink-400 text-sm font-semibold shadow"
+                class="inline-flex items-center justify-center px-4 py-2 rounded-full bg-[var(--accent)] text-white hover:brightness-110 text-sm font-semibold "
             >
                 Subir foto
             </button>
@@ -120,7 +121,7 @@
 
     {{-- Grid de fotos aprobadas --}}
     @if($guestPhotos->isEmpty())
-        <p class="text-sm text-slate-400" data-guest-photos-empty>
+        <p class="text-sm text-[var(--ink-muted)]" data-guest-photos-empty>
             Aún no hay fotos de invitados aprobadas para mostrar.
         </p>
         <div class="grid grid-cols-2 md:grid-cols-3 gap-3" data-guest-photos-grid></div>
@@ -130,7 +131,7 @@
                 @php
                     $url = Storage::disk('public')->url($photo->file_path);
                 @endphp
-                <figure class="relative rounded-2xl overflow-hidden bg-slate-900/60 border border-slate-700">
+                <figure class="relative rounded-2xl overflow-hidden bg-[var(--surface)]/60 border border-[var(--rule)]">
                     <img
                         src="{{ $url }}"
                         alt="{{ $photo->caption ?? 'Foto de invitado' }}"
@@ -138,7 +139,7 @@
                         loading="lazy"
                     >
                     @if($photo->caption)
-                        <figcaption class="absolute inset-x-0 bottom-0 bg-slate-900/70 px-2 py-1 text-[11px] text-slate-100">
+                        <figcaption class="absolute inset-x-0 bottom-0 bg-[var(--surface)]/70 px-2 py-1 text-[11px] text-[var(--ink)]">
                             {{ $photo->caption }}
                         </figcaption>
                     @endif
@@ -146,4 +147,6 @@
             @endforeach
         </div>
     @endif
-</section>
+
+    </div>
+</div>

@@ -23,6 +23,7 @@ class EventSchedule extends Model
         'location_label',
         'location_type',
         'display_order',
+        'is_enabled',
     ];
 
     /**
