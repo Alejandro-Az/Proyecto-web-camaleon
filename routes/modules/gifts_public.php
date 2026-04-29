@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Public\GiftController;
+use App\Http\Controllers\Public\GiftUnclaimController;
 
 Route::prefix('eventos/{slug}/regalos')
     ->name('events.gifts.')
@@ -22,7 +23,7 @@ Route::prefix('eventos/{slug}/regalos')
             ->middleware('throttle:20,1')
             ->name('reserve');
 
-        Route::post('{gift}/liberar', [GiftController::class, 'unreserve'])
+        Route::post('{gift}/liberar', GiftUnclaimController::class)
             ->middleware('throttle:20,1')
             ->name('unreserve');
     });

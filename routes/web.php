@@ -20,16 +20,20 @@ Route::get('/eventos/{slug}', [EventController::class, 'show'])
 
 // Registro/actualización de RSVP de invitados
 Route::post('/eventos/{slug}/rsvp', [RsvpController::class, 'store'])
+    ->middleware('throttle:20,1')
     ->name('events.rsvp.store');
 
 // Sugerencia de canciones
 Route::post('/eventos/{slug}/canciones', [SongController::class, 'store'])
+    ->middleware('throttle:20,1')
     ->name('events.songs.store');
 
 // Votos a canciones
 Route::post('/eventos/{slug}/canciones/{song}/votar', [SongController::class, 'vote'])
+    ->middleware('throttle:20,1')
     ->name('events.songs.vote');
 
 // Subida de fotos por invitados
 Route::post('/eventos/{slug}/fotos-invitados', [GuestPhotoController::class, 'store'])
+    ->middleware('throttle:10,1')
     ->name('events.guest-photos.store');

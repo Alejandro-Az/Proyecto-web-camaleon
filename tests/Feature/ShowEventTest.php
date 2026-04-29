@@ -12,6 +12,26 @@ class ShowEventTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
+    public function slug_inexistente_devuelve_404(): void
+    {
+        $this->get('/eventos/slug-que-no-existe')
+            ->assertStatus(404);
+    }
+
+    /** @test */
+    public function evento_inactivo_no_se_muestra_publicamente(): void
+    {
+        // status != active → publicVisible scope lo excluye
+        $event = Event::factory()->create([
+            'slug'   => 'evento-inactivo',
+            'status' => 'draft',
+        ]);
+
+        $this->get("/eventos/{$event->slug}")
+            ->assertStatus(404);
+    }
+
+    /** @test */
     public function puede_mostrar_un_evento_activo_por_slug()
     {
         // Arrange

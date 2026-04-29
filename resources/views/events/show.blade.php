@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $event->name }} | Eventos Camaleón</title>
 
@@ -12,200 +13,137 @@
             'resources/js/guest-photos.js',
         ])
     @endif
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950 text-slate-100">
+<body class="cml bg-[var(--bg)] min-h-screen" style="{{ $event->palette_style }}">
 
-    <div class="max-w-5xl mx-auto px-4 py-10 space-y-8">
+    {{-- Sticky-ish Nav --}}
+    <div class="flex items-center justify-between px-6 py-4 md:px-14 border-b border-[var(--rule)] bg-[var(--bg)] sticky top-0 z-50">
+        <div class="cml-serif text-xl italic text-[var(--ink)]">
+            {{ Str::substr($event->name, 0, 1) }}<span class="text-[var(--accent)]">&amp;</span>{{ Str::substr(explode(' ', $event->name)[1] ?? 'M', 0, 1) }}
+        </div>
+        <div class="hidden md:flex gap-8">
+            <a href="#detalles" class="cml-eyebrow text-[var(--accent)] border-b border-[var(--accent)] pb-1 transition-colors">Detalles</a>
+            @if($event->isModuleEnabled('rsvp'))<a href="#rsvp" class="cml-eyebrow text-[var(--ink-soft)] hover:text-[var(--accent)] pb-1 transition-colors">RSVP</a>@endif
+            @if($event->isModuleEnabled('gifts'))<a href="#gifts" class="cml-eyebrow text-[var(--ink-soft)] hover:text-[var(--accent)] pb-1 transition-colors">Regalos</a>@endif
+            @if($event->isModuleEnabled('songs'))<a href="#songs" class="cml-eyebrow text-[var(--ink-soft)] hover:text-[var(--accent)] pb-1 transition-colors">Música</a>@endif
+            @if($event->isModuleEnabled('gallery'))<a href="#gallery" class="cml-eyebrow text-[var(--ink-soft)] hover:text-[var(--accent)] pb-1 transition-colors">Galería</a>@endif
+        </div>
+        @if($event->isModuleEnabled('rsvp'))
+            <a href="#rsvp" class="cml-btn cml-btn--accent px-4 py-2 text-xs">RSVP</a>
+        @else
+            <div></div>
+        @endif
+    </div>
 
-        <header class="relative rounded-3xl shadow-lg overflow-hidden bg-slate-800/70 backdrop-blur">
-            @if($heroPhoto)
-                <div class="absolute inset-0">
-                    <img
-                        src="{{ asset('storage/' . $heroPhoto->file_path) }}"
-                        alt="{{ $heroPhoto->caption ?: 'Foto de portada del evento' }}"
-                        class="w-full h-full object-cover"
-                    >
-                    <div class="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-slate-950/40 to-slate-950/90"></div>
+    {{-- Hero Split --}}
+    <div class="grid grid-cols-1 md:grid-cols-[1.05fr_1fr] min-h-[640px]">
+        @if($event->cover_image_path)
+            <img src="{{ Storage::url($event->cover_image_path) }}" alt="Foto de portada" class="w-full h-full object-cover">
+        @elseif($heroPhoto)
+            <img src="{{ asset('storage/' . $heroPhoto->file_path) }}" alt="Foto de portada" class="w-full h-full object-cover">
+        @else
+            <div class="w-full h-full cml-img-ph rounded-none aspect-[4/5] md:aspect-auto">FOTO · PORTADA</div>
+        @endif
+
+        <div class="flex flex-col items-center justify-center px-6 py-20 md:px-14 text-center">
+            <div class="cml-eyebrow mb-6">{{ $event->type === 'wedding' ? 'Nos casamos' : 'Celebramos' }}</div>
+            
+            <h1 class="cml-serif text-5xl md:text-6xl text-[var(--ink)] mb-2">
+                {{ $event->name }}
+            </h1>
+
+            <div class="cml-divider max-w-[130px] mx-auto mt-8 mb-6 text-[var(--accent)]">
+                <i data-lucide="leaf" class="w-4 h-4 mx-auto"></i>
+            </div>
+            
+            @if($heroPhoto && $heroPhoto->caption)
+                <div class="cml-serif text-xl md:text-2xl italic text-[var(--ink-soft)] max-w-sm mb-10 leading-relaxed">
+                    {{ $heroPhoto->caption }}
                 </div>
             @endif
 
-            <div class="relative px-6 py-8 md:px-10 md:py-10">
-                <p class="text-sm uppercase tracking-[0.25em] text-slate-400 mb-3">
-                    {{ strtoupper($event->type) }}
-                </p>
-
-                <h1 class="text-3xl md:text-4xl font-semibold mb-3">
-                    {{ $event->name }}
-                </h1>
-
-                <p class="text-slate-300 mb-1">
-                    Fecha del evento:
-                    <span class="font-medium">
-                        {{ $event->event_date->translatedFormat('d \\de F \\de Y') }}
-                    </span>
-                </p>
-
-                @if($event->start_time)
-                    <p class="text-slate-300">
-                        Horario:
-                        <span class="font-medium">
-                            {{ \Carbon\Carbon::createFromTimeString($event->start_time)->format('H:i') }}
-                            @if($event->end_time)
-                                – {{ \Carbon\Carbon::createFromTimeString($event->end_time)->format('H:i') }} hrs
-                            @endif
-                        </span>
-                    </p>
-                @endif
-
-                @if($heroPhoto && $heroPhoto->caption)
-                    <p class="text-sm text-slate-200 mt-3">
-                        {{ $heroPhoto->caption }}
-                    </p>
+            <div class="cml-eyebrow mb-2">{{ $event->event_date->translatedFormat('d \de F \de Y') }}</div>
+            <div class="cml-sans text-sm text-[var(--ink-muted)]">
+                @if($event->locations->count() > 0)
+                    {{ $event->locations->first()->name }} · {{ $event->locations->first()->city ?? 'Ciudad' }}
+                @else
+                    Lugar del evento
                 @endif
             </div>
-        </header>
-
-        {{-- Módulo: Cuenta regresiva --}}
-        @if($event->isModuleEnabled('countdown'))
-            @include('events.modules.countdown', ['event' => $event])
-        @endif
-
-        {{-- ✅ NUEVO: Módulo Historia / Sobre... --}}
-        @if($event->isModuleEnabled('story') && $event->stories->count())
-            @include('events.modules.story', [
-                'event'   => $event,
-                'stories' => $event->stories,
-            ])
-        @endif
-
-        {{-- Módulo: Código de vestimenta --}}
-        @if($event->isModuleEnabled('dress_code') && $event->dressCodes->count())
-            @include('events.modules.dress-code', [
-                'event'      => $event,
-                'dressCodes' => $event->dressCodes,
-            ])
-        @endif
-
-        {{-- Módulo: Itinerario / schedule --}}
-        @if($event->isModuleEnabled('schedule') && $event->schedules->count())
-            @include('events.modules.schedule', [
-                'event'     => $event,
-                'schedules' => $event->schedules,
-            ])
-        @endif
-
-        {{-- Sección de ubicaciones (respeta modules.map) --}}
-        @if($event->isModuleEnabled('map') && $event->locations->count())
-            <section class="bg-slate-800/60 rounded-3xl p-6 md:p-8 shadow">
-                <h2 class="text-xl font-semibold mb-4">Ubicación</h2>
-
-                <div class="space-y-6">
-                    @foreach($event->locations as $location)
-                        <div class="border border-slate-700 rounded-2xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                            <div>
-                                <p class="text-sm uppercase tracking-wide text-slate-400">
-                                    @switch($location->type)
-                                        @case('ceremony') Ceremonia @break
-                                        @case('reception') Recepción @break
-                                        @default Lugar
-                                    @endswitch
-                                </p>
-                                <p class="text-lg font-medium">{{ $location->name }}</p>
-                                @if($location->address)
-                                    <p class="text-sm text-slate-300 mt-1">
-                                        {{ $location->address }}
-                                    </p>
-                                @endif
-                            </div>
-
-                            @if($location->maps_url)
-                                <a href="{{ $location->maps_url }}"
-                                   target="_blank"
-                                   class="inline-flex items-center justify-center px-4 py-2 rounded-full bg-pink-500 hover:bg-pink-400 text-sm font-semibold shadow">
-                                    Abrir en Google Maps
-                                </a>
-                            @endif
-                        </div>
-                    @endforeach
-                </div>
-            </section>
-        @endif
-
-        {{-- Galería de fotos --}}
-        @if($event->isModuleEnabled('gallery'))
-            @include('events.modules.gallery', [
-                'event'         => $event,
-                'galleryPhotos' => $galleryPhotos ?? collect(),
-            ])
-        @endif
-
-        {{-- Módulo: Fotos de invitados --}}
-        @if($event->isModuleEnabled('guest_photos_upload'))
-            @include('events.modules.guest-photos', [
-                'event'       => $event,
-                'guest'       => $guest ?? null,
-                'guestPhotos' => $guestPhotos ?? collect(),
-            ])
-        @endif
-
-        {{-- Módulo RSVP --}}
-        @if($event->isModuleEnabled('rsvp'))
-            @include('events.modules.rsvp', [
-                'event'        => $event,
-                'guest'        => $guest ?? null,
-                'rsvpEditMode' => $rsvpEditMode ?? false,
-            ])
-        @endif
-
-        {{-- Módulo: Lista pública de asistentes --}}
-        @if($event->isModuleEnabled('public_attendance_list'))
-            @include('events.modules.attendance-list', [
-                'event'           => $event,
-                'confirmedGuests' => $confirmedGuests ?? collect(),
-            ])
-        @endif
-
-        {{-- Módulo: Canciones y votos --}}
-        @if($event->isModuleEnabled('songs'))
-            @include('events.modules.songs', [
-                'event'                     => $event,
-                'guest'                     => $guest ?? null,
-                'guestSongSuggestionsCount' => $guestSongSuggestionsCount ?? null,
-                'guestVotesCount'           => $guestVotesCount ?? null,
-                'votedSongIds'              => $votedSongIds ?? [],
-            ])
-        @endif
-
-        {{-- Módulo: Mesa de regalos --}}
-        @if($event->isModuleEnabled('gifts'))
-            @include('events.modules.gifts', [
-                'event'                   => $event,
-                'gifts'                   => $gifts ?? collect(),
-                'guest'                   => $guest ?? null,
-                'guestGiftClaimsByGiftId' => $guestGiftClaimsByGiftId ?? collect(),
-            ])
-        @endif
-
-        {{-- Módulo: Frases románticas / del evento --}}
-        @if($event->isModuleEnabled('romantic_phrases') && $event->romanticPhrases->count())
-            @include('events.modules.romantic-phrases', [
-                'event'   => $event,
-                'phrases' => $event->romanticPhrases,
-            ])
-        @endif
-
-        {{-- Placeholder (solo local) --}}
-        @if(app()->environment('local'))
-            <section class="bg-slate-800/40 rounded-3xl p-6 md:p-8 border border-dashed border-slate-700">
-                <h2 class="text-xl font-semibold mb-2">Módulos del evento</h2>
-                <p class="text-sm text-slate-300">
-                    Aquí más adelante vamos a ir mostrando módulos en función de
-                    <code class="text-xs bg-slate-900/70 px-1 py-0.5 rounded">events.modules</code>.
-                </p>
-            </section>
-        @endif
-
+        </div>
     </div>
 
+    {{-- Details / Map Strip --}}
+    @if($event->locations->count() > 0)
+        <div id="detalles" class="grid grid-cols-1 md:grid-cols-3 border-t border-b border-[var(--rule)]">
+            @foreach($event->locations->take(3) as $index => $loc)
+                <div class="p-10 text-center {{ $index < 2 ? 'md:border-r border-b md:border-b-0 border-[var(--rule)]' : '' }}">
+                    <div class="text-[var(--accent)] inline-block mb-4">
+                        <i data-lucide="map-pin" class="w-7 h-7"></i>
+                    </div>
+                    <div class="cml-eyebrow mb-2">{{ $loc->type === 'ceremony' ? 'Ceremonia' : ($loc->type === 'reception' ? 'Recepción' : 'Ubicación') }}</div>
+                    <div class="cml-serif text-lg text-[var(--ink)]">
+                        {{ $loc->name }}
+                        @if($loc->maps_url)
+                            <a href="{{ $loc->maps_url }}" target="_blank" class="block text-sm text-[var(--accent)] mt-2 hover:underline font-sans">Ver mapa</a>
+                        @endif
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
+
+    {{-- Modules --}}
+    @if($event->isModuleEnabled('countdown'))
+        @include('events.modules.countdown', ['event' => $event])
+    @endif
+
+    @if($event->isModuleEnabled('story') && $event->stories->count())
+        @include('events.modules.story', ['event' => $event, 'stories' => $event->stories])
+    @endif
+
+    @if($event->isModuleEnabled('schedule') && $event->schedules->count())
+        @include('events.modules.schedule', ['event' => $event, 'schedules' => $event->schedules])
+    @endif
+
+    @if($event->isModuleEnabled('dress_code') && $event->dressCodes->count())
+        @include('events.modules.dress-code', ['event' => $event, 'dressCodes' => $event->dressCodes])
+    @endif
+
+    @if($event->isModuleEnabled('rsvp'))
+        @include('events.modules.rsvp', ['event' => $event, 'guest' => $guest ?? null, 'rsvpEditMode' => $rsvpEditMode ?? false])
+    @endif
+
+    @if($event->isModuleEnabled('gifts'))
+        @include('events.modules.gifts', ['event' => $event, 'gifts' => $gifts ?? collect(), 'guest' => $guest ?? null])
+    @endif
+
+    @if($event->isModuleEnabled('songs'))
+        @include('events.modules.songs', ['event' => $event, 'guest' => $guest ?? null])
+    @endif
+
+    @if($event->isModuleEnabled('gallery'))
+        @include('events.modules.gallery', ['event' => $event])
+    @endif
+
+    @if($event->isModuleEnabled('guest_photos_upload'))
+        @include('events.modules.guest-photos', ['event' => $event, 'guest' => $guest ?? null])
+    @endif
+
+    {{-- Footer --}}
+    <div class="py-16 px-10 text-center border-t border-[var(--rule)] mt-20">
+        <h2 class="cml-serif text-3xl italic text-[var(--ink)]">
+            {{ Str::substr($event->name, 0, 1) }}<span class="text-[var(--accent)]">&amp;</span>{{ Str::substr(explode(' ', $event->name)[1] ?? 'M', 0, 1) }}
+        </h2>
+        <div class="cml-eyebrow mt-4 text-[var(--ink-muted)]">{{ $event->event_date->translatedFormat('d \de F \de Y') }}</div>
+        <div class="cml-sans text-xs text-[var(--ink-muted)] mt-6 opacity-70 inline-flex items-center gap-2">
+            Sitio creado con <i data-lucide="leaf" class="w-3 h-3 text-[var(--accent)]"></i> Camaleón
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 </html>

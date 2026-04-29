@@ -1,3 +1,6 @@
+<div style="padding: 80px 24px; background: var(--surface-alt);">
+    <div style="max-width: 1100px; margin: 0 auto;">
+        <div style="text-align: center; margin-bottom: 50px;"><div class="cml-eyebrow" style="margin-bottom: 14px;">Comenzando un hogar</div><h2 class="cml-serif text-4xl italic text-[var(--ink)]">Mesa de regalos</h2><div class="cml-divider max-w-[80px] mx-auto mt-6 text-[var(--accent)]"><i data-lucide="leaf" class="w-4 h-4 mx-auto"></i></div><div class="cml-sans text-center text-sm text-[var(--ink-muted)] mt-6 mx-auto max-w-lg">Tu presencia es nuestro mayor regalo. Si gustas, puedes obsequiarnos algo de nuestra mesa.</div></div>
 @php
     use App\Models\EventGift;
 
@@ -20,24 +23,10 @@
     $guestGiftClaimsByGiftId = $guestGiftClaimsByGiftId ?? collect();
 @endphp
 
-<section
-    id="event-gifts"
-    class="bg-slate-800/60 rounded-3xl p-6 md:p-8 shadow space-y-4"
-    data-module="gifts"
-    data-event-id="{{ $event->id }}"
-    data-event-slug="{{ $event->slug }}"
-    data-require-invitation-code="{{ $requireInvitationCode ? '1' : '0' }}"
-    data-allow-unclaim="{{ $allowUnclaim ? '1' : '0' }}"
-    data-allow-multi-unit-reserve="{{ $allowMultiUnitReserve ? '1' : '0' }}"
-    data-show-claimers="{{ $showClaimersPublic ? '1' : '0' }}"
-    data-max-units-per-guest="{{ $maxUnitsPerGuest }}"
-    data-invitation-code="{{ $guest->invitation_code ?? '' }}"
-    data-gifts-summary-url="{{ route('events.gifts.summary', ['slug' => $event->slug]) }}"
-    data-my-claims-url="{{ route('events.gifts.myClaims', ['slug' => $event->slug]) }}"
->
+<section id="event-gifts" data-module="gifts" data-event-id="{{ $event->id }}" data-event-slug="{{ $event->slug }}" data-require-invitation-code="{{ $requireInvitationCode ? '1' : '0' }}" data-allow-unclaim="{{ $allowUnclaim ? '1' : '0' }}" data-allow-multi-unit-reserve="{{ $allowMultiUnitReserve ? '1' : '0' }}" data-show-claimers="{{ $showClaimersPublic ? '1' : '0' }}" data-max-units-per-guest="{{ $maxUnitsPerGuest }}" data-invitation-code="{{ $guest->invitation_code ?? '' }}" data-gifts-summary-url="{{ route('events.gifts.summary', ['slug' => $event->slug]) }}" data-my-claims-url="{{ route('events.gifts.myClaims', ['slug' => $event->slug]) }}" class="space-y-4">
     <header>
-        <h2 class="text-xl font-semibold mb-1">Mesa de regalos</h2>
-        <p class="text-sm text-slate-300">
+        
+        <p class="text-sm text-[var(--ink-soft)]">
             Aquí puede ver las sugerencias de regalos para {{ $event->owner_name ?? $event->name }}.
         </p>
     </header>
@@ -50,8 +39,8 @@
 
     {{-- Captura opcional de código (por si entró sin ?i=) --}}
     @if($requireInvitationCode && ! $guest)
-        <div class="rounded-2xl p-4 border border-slate-700 bg-slate-900/40 space-y-2" data-gifts-code-box>
-            <p class="text-sm text-slate-200">
+        <div class="rounded-2xl p-4 border border-[var(--rule)] bg-[var(--surface)]/40 space-y-2" data-gifts-code-box>
+            <p class="text-sm text-[var(--ink)]">
                 Para apartar regalos necesita su <span class="font-semibold">código de invitación</span>.
                 Idealmente entre con su enlace personal (trae <code>?i=...</code>).
             </p>
@@ -59,36 +48,36 @@
             <div class="flex flex-col sm:flex-row gap-2">
                 <input
                     type="text"
-                    class="w-full sm:max-w-sm rounded-xl bg-slate-950/40 border border-slate-700 px-3 py-2 text-sm text-slate-100"
+                    class="w-full sm:max-w-sm rounded-xl bg-[var(--surface)] border border-[var(--rule)] px-3 py-2 text-sm text-[var(--ink)]"
                     placeholder="Pegue su código de invitación"
                     data-gifts-code-input
                 >
                 <button
                     type="button"
-                    class="inline-flex items-center justify-center px-4 py-2 rounded-xl text-sm font-semibold bg-sky-500 hover:bg-sky-400 text-white transition"
+                    class="inline-flex items-center justify-center px-4 py-2 rounded-xl text-sm font-semibold cml-btn cml-btn--accent transition"
                     data-gifts-code-save
                 >
                     Guardar código
                 </button>
                 <button
                     type="button"
-                    class="inline-flex items-center justify-center px-4 py-2 rounded-xl text-sm font-semibold bg-slate-700 hover:bg-slate-600 text-slate-100 transition"
+                    class="inline-flex items-center justify-center px-4 py-2 rounded-xl text-sm font-semibold bg-[var(--surface-alt)] hover:bg-[var(--surface-alt)] text-[var(--ink)] transition"
                     data-gifts-code-clear
                 >
                     Quitar
                 </button>
             </div>
 
-            <p class="text-xs text-slate-400">
+            <p class="text-xs text-[var(--ink-muted)]">
                 Nota: el código se guarda en su navegador para que no se “olvide” al recargar.
             </p>
         </div>
     @endif
 
     @if($gifts->isEmpty())
-        <p class="text-sm text-slate-400">Aún no hay regalos configurados para este evento.</p>
+        <p class="text-sm text-[var(--ink-muted)]">Aún no hay regalos configurados para este evento.</p>
     @else
-        <div class="grid gap-4 md:grid-cols-2">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
             @foreach($gifts as $gift)
                 @php
                     /** @var EventGift $gift */
@@ -100,11 +89,11 @@
                     $isSoldOut    = $availableQty <= 0;
 
                     $statusLabel = 'Disponible';
-                    $statusClass = 'text-emerald-400';
+                    $statusClass = 'text-[var(--accent)]';
 
                     if ($isPurchased) {
                         $statusLabel = 'Comprado';
-                        $statusClass = 'text-slate-400';
+                        $statusClass = 'text-[var(--ink-muted)]';
                     } elseif ($isSoldOut) {
                         $statusLabel = 'Sin unidades disponibles';
                         $statusClass = 'text-amber-400';
@@ -132,7 +121,8 @@
                 @endif
 
                 <article
-                    class="border border-slate-700 rounded-2xl p-4 flex flex-col justify-between gap-3 bg-slate-900/40"
+                    class="cml-card flex flex-col justify-between"
+                    style="padding: 0; overflow: hidden;"
                     data-gift-card
                     data-gift-id="{{ $gift->id }}"
                     data-gift-status="{{ $gift->status }}"
@@ -141,33 +131,31 @@
                     data-gift-available="{{ $availableQty }}"
                     data-gift-my-qty="{{ $guestClaimQty }}"
                 >
-                    <div class="space-y-2">
-                        <div class="flex items-start justify-between gap-3">
+                    <div style="padding: 16px 18px 14px; flex: 1;">
+                        <div class="flex items-start justify-between gap-3" style="margin-bottom: 8px;">
                             <div>
-                                <h3 class="text-base font-semibold">{{ $gift->name }}</h3>
+                                <h3 class="cml-serif" style="font-size: 17px; color: var(--ink); margin: 0;">{{ $gift->name }}</h3>
 
                                 @if($gift->store_label)
-                                    <p class="text-xs text-slate-400 mt-1">
-                                        Tienda: {{ $gift->store_label }}
-                                    </p>
+                                    <p class="cml-eyebrow" style="font-size: 10px; color: var(--ink-muted); margin-top: 4px;">{{ $gift->store_label }}</p>
                                 @endif
                             </div>
 
-                            <span class="text-xs font-semibold {{ $statusClass }}" data-gift-status-label>
+                            <span class="cml-sans text-xs font-medium {{ $statusClass }}" data-gift-status-label>
                                 {{ $guestHasReserved ? 'Apartado por ti' : $statusLabel }}
                             </span>
                         </div>
 
                         @if($guestHasReserved)
-                            <p class="text-xs text-slate-300" data-gift-my-qty-text>
+                            <p class="text-xs text-[var(--ink-soft)]" data-gift-my-qty-text>
                                 Usted apartó {{ $guestClaimQty }} / {{ $maxUnitsPerGuest }} unidad(es).
                             </p>
                         @else
-                            <p class="text-xs text-slate-300 hidden" data-gift-my-qty-text></p>
+                            <p class="text-xs text-[var(--ink-soft)] hidden" data-gift-my-qty-text></p>
                         @endif
 
                         @if($gift->description)
-                            <p class="text-sm text-slate-200">{{ $gift->description }}</p>
+                            <p class="text-sm text-[var(--ink)]">{{ $gift->description }}</p>
                         @endif
 
                         @if($gift->url)
@@ -181,7 +169,7 @@
                             </a>
                         @endif
 
-                        <p class="text-xs text-slate-300" data-gift-availability-text>
+                        <p class="text-xs text-[var(--ink-soft)]" data-gift-availability-text>
                             @if($availableQty <= 0)
                                 No quedan unidades disponibles ({{ $totalQty }} en total).
                             @elseif($availableQty === 1)
@@ -192,16 +180,16 @@
                         </p>
 
                         @if($showClaimersPublic)
-                            <div class="pt-2 border-t border-slate-700/60">
-                                <p class="text-[11px] text-slate-400 mb-1">Invitados comprometidos:</p>
-                                <ul class="space-y-1 text-xs text-slate-200" data-gift-claimers-list>
-                                    <li class="text-slate-400">Cargando…</li>
+                            <div class="pt-2 border-t border-[var(--rule)]/60">
+                                <p class="text-[11px] text-[var(--ink-muted)] mb-1">Invitados comprometidos:</p>
+                                <ul class="space-y-1 text-xs text-[var(--ink)]" data-gift-claimers-list>
+                                    <li class="text-[var(--ink-muted)]">Cargando…</li>
                                 </ul>
                             </div>
                         @endif
                     </div>
 
-                    <div class="space-y-2">
+                    <div style="padding: 12px 18px 18px; border-top: 1px solid var(--rule);">
                         <div class="flex flex-wrap items-center gap-2">
                             {{-- Reservar --}}
                             <form
@@ -221,14 +209,16 @@
                                         max="{{ $maxQtyInput }}"
                                         step="1"
                                         value="1"
-                                        class="w-20 mr-2 rounded-xl bg-slate-950/40 border border-slate-700 px-3 py-1.5 text-xs text-slate-100"
+                                        class="cml-input"
+                                        style="width: 70px; padding: 6px 10px; font-size: 12px;"
                                         data-gift-quantity-input
                                     >
                                 @endif
 
                                 <button
                                     type="submit"
-                                    class="inline-flex items-center justify-center px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-900 transition"
+                                    class="cml-btn cml-btn--accent"
+                                    style="padding: 10px 16px; font-size: 11px;"
                                     data-gift-button="reserve"
                                 >
                                     Lo compro yo
@@ -247,7 +237,8 @@
 
                                 <button
                                     type="submit"
-                                    class="inline-flex items-center justify-center px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-700 hover:bg-slate-600 text-slate-100 transition"
+                                    class="cml-btn cml-btn--ghost"
+                                    style="padding: 10px 16px; font-size: 11px;"
                                     data-gift-button="unreserve"
                                 >
                                     Me arrepentí
@@ -259,4 +250,6 @@
             @endforeach
         </div>
     @endif
-</section>
+
+    </div>
+</div>

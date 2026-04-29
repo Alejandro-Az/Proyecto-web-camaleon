@@ -11,6 +11,41 @@ use Illuminate\Support\Facades\DB;
 
 class EventGiftAdminController extends Controller
 {
+    /**
+     * @OA\Post(
+     *   path="/admin/eventos/{event}/regalos/{gift}/marcar-comprado",
+     *   tags={"Admin Regalos"},
+     *   summary="Marca un regalo como comprado",
+     *   description="Marca el regalo como comprado, actualiza claims reservados y recalcula cantidades reservadas.",
+     *   security={{"bearerAuth":{}}},
+     *   @OA\Parameter(
+     *     name="event",
+     *     in="path",
+     *     required=true,
+     *     description="ID del evento",
+     *     @OA\Schema(type="integer", example=1)
+     *   ),
+     *   @OA\Parameter(
+     *     name="gift",
+     *     in="path",
+     *     required=true,
+     *     description="ID del regalo",
+     *     @OA\Schema(type="integer", example=10)
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="Regalo marcado como comprado",
+     *     @OA\JsonContent(
+     *       @OA\Property(property="message", type="string", example="Regalo marcado como comprado."),
+     *       @OA\Property(property="gift_id", type="integer", example=10),
+     *       @OA\Property(property="status", type="string", example="purchased")
+     *     )
+     *   ),
+     *   @OA\Response(response=401, description="No autenticado"),
+     *   @OA\Response(response=403, description="Sin permisos"),
+     *   @OA\Response(response=404, description="Evento o regalo no encontrado")
+     * )
+     */
     public function markPurchased(Event $event, int $gift, Request $request)
     {
         if (!data_get($event->modules, 'gifts')) {

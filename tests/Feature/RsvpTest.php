@@ -2,8 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Mail\RsvpConfirmedGuestMail;
+use App\Mail\RsvpReceivedOwnerMail;
 use App\Models\Event;
 use App\Models\Guest;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -14,17 +17,21 @@ class RsvpTest extends TestCase
     /** @test */
     public function invitado_puede_confirmar_su_asistencia()
     {
+        Mail::fake();
+
         $event = Event::factory()->create([
             'type'   => 'wedding',
             'name'   => 'Boda Test RSVP',
             'slug'   => 'boda-test-rsvp',
             'status' => Event::STATUS_ACTIVE,
+            'owner_email' => 'owner@demo.test',
         ]);
 
         $guest = Guest::factory()->create([
             'event_id'        => $event->id,
             'name'            => 'Invitado Ejemplo',
             'invitation_code' => 'ABC123',
+            'email'           => 'guest@demo.test',
         ]);
 
         $response = $this->post('/eventos/' . $event->slug . '/rsvp', [
@@ -45,6 +52,9 @@ class RsvpTest extends TestCase
             'guests_confirmed'   => 2,
             'show_in_public_list'=> 1,
         ]);
+
+        Mail::assertQueued(RsvpConfirmedGuestMail::class);
+        Mail::assertQueued(RsvpReceivedOwnerMail::class);
     }
 
     /** @test */
@@ -86,11 +96,14 @@ class RsvpTest extends TestCase
         /** @test */
     public function no_puede_confirmar_mas_personas_que_los_asientos_invitados()
     {
+        Mail::fake();
+
         $event = Event::factory()->create([
             'type'   => 'wedding',
             'name'   => 'Boda Test Límite Asientos',
             'slug'   => 'boda-test-limite-asientos',
             'status' => Event::STATUS_ACTIVE,
+            'owner_email' => 'owner@demo.test',
         ]);
 
         $guest = Guest::factory()->create([
@@ -119,6 +132,38 @@ class RsvpTest extends TestCase
             'id'               => $guest->id,
             'guests_confirmed' => 5,
         ]);
+
+        Mail::assertNothingQueued();
+    }
+
+    /** @test */
+    public function envia_solo_correo_al_organizador_si_invitado_no_tiene_email()
+    {
+        Mail::fake();
+
+        $event = Event::factory()->create([
+            'type'        => 'wedding',
+            'name'        => 'Boda Sin Email Invitado',
+            'slug'        => 'boda-sin-email-invitado',
+            'status'      => Event::STATUS_ACTIVE,
+            'owner_email' => 'owner@demo.test',
+        ]);
+
+        Guest::factory()->create([
+            'event_id'        => $event->id,
+            'name'            => 'Invitado Sin Email',
+            'invitation_code' => 'SEM12345',
+            'email'           => null,
+        ]);
+
+        $this->post('/eventos/' . $event->slug . '/rsvp', [
+            'invitation_code'  => 'SEM12345',
+            'rsvp_status'      => 'yes',
+            'guests_confirmed' => 1,
+        ])->assertRedirect('/eventos/' . $event->slug . '?i=SEM12345');
+
+        Mail::assertQueued(RsvpReceivedOwnerMail::class);
+        Mail::assertNotQueued(RsvpConfirmedGuestMail::class);
     }
 
 }

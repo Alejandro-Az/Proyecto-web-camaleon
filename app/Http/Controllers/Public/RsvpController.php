@@ -3,12 +3,17 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
+use App\Mail\RsvpConfirmedGuestMail;
+use App\Mail\RsvpReceivedOwnerMail;
 use App\Models\Event;
 use App\Models\Guest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
+use Throwable;
 
 class RsvpController extends Controller
 {
@@ -135,6 +140,8 @@ class RsvpController extends Controller
 
         $guest->save();
 
+        $this->dispatchRsvpEmails($event, $guest);
+
         $successMessage = $wasFirstResponse
             ? '¡Gracias! Tu asistencia ha sido registrada correctamente.'
             : '¡Listo! Se ha actualizado el estado de tu asistencia.';
@@ -160,5 +167,34 @@ class RsvpController extends Controller
         return redirect()
             ->route('events.show', ['slug' => $event->slug, 'i' => $guest->invitation_code])
             ->with('rsvp_success', $successMessage);
+    }
+
+    private function dispatchRsvpEmails(Event $event, Guest $guest): void
+    {
+        $ownerEmail = $event->owner_email ?: optional($event->owner)->email;
+
+        if (is_string($ownerEmail) && $ownerEmail !== '') {
+            try {
+                Mail::to($ownerEmail)->queue(new RsvpReceivedOwnerMail($event, $guest));
+            } catch (Throwable $e) {
+                Log::warning('No se pudo enviar correo de RSVP al organizador.', [
+                    'event_id' => $event->id,
+                    'guest_id' => $guest->id,
+                    'error'    => $e->getMessage(),
+                ]);
+            }
+        }
+
+        if (is_string($guest->email) && $guest->email !== '') {
+            try {
+                Mail::to($guest->email)->queue(new RsvpConfirmedGuestMail($event, $guest));
+            } catch (Throwable $e) {
+                Log::warning('No se pudo enviar correo de confirmacion de RSVP al invitado.', [
+                    'event_id' => $event->id,
+                    'guest_id' => $guest->id,
+                    'error'    => $e->getMessage(),
+                ]);
+            }
+        }
     }
 }

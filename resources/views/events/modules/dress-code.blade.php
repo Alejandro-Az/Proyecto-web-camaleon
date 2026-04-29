@@ -1,105 +1,27 @@
-{{-- resources/views/events/modules/dress-code.blade.php --}}
-
-@php
-    /** @var \App\Models\Event $event */
-    /** @var \Illuminate\Support\Collection|\App\Models\EventDressCode[] $dressCodes */
-@endphp
-
-@if($dressCodes->isNotEmpty())
-    <section class="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-6 md:p-8 shadow-sm mb-8">
-        <div class="mb-4">
-            <h2 class="text-xl md:text-2xl font-semibold text-slate-50">
-                Código de vestimenta
-            </h2>
-            <p class="text-sm text-slate-300 mt-1">
-                Para que todos nos veamos increíbles, le recomendamos este código de vestimenta:
-            </p>
+<div style="padding: 80px 24px; background: var(--surface-alt);">
+    <div style="max-width: 1100px; margin: 0 auto;">
+        <div style="text-align: center; margin-bottom: 50px;">
+            <div class="cml-eyebrow" style="margin-bottom: 14px;">Código de vestimenta</div>
+            <h2 class="cml-serif text-4xl italic text-[var(--ink)]">Etiqueta</h2>
+            <div class="cml-divider max-w-[80px] mx-auto mt-6 text-[var(--accent)]"><i data-lucide="leaf" class="w-4 h-4 mx-auto"></i></div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-            @foreach($dressCodes as $dressCode)
-                <article class="rounded-2xl border border-slate-700/60 bg-slate-900/40 p-5 md:p-6">
-                    <div class="flex items-start justify-between gap-3">
-                        <div>
-                            <h3 class="text-lg font-semibold text-slate-50">
-                                {{ $dressCode->title }}
-                            </h3>
-
-                            @if(!empty($dressCode->description))
-                                <p class="text-sm text-slate-300 mt-1">
-                                    {{ $dressCode->description }}
-                                </p>
-                            @endif
+        @if($dressCodes->isEmpty())
+            <p class="text-sm text-[var(--ink-muted)] text-center">No hay información de código de vestimenta.</p>
+        @else
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
+                @foreach($dressCodes as $code)
+                    <div>
+                        <div style="width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--accent); display: inline-flex; align-items: center; justify-content: center; color: var(--accent); margin-bottom: 16px;">
+                            <i data-lucide="shirt" class="w-6 h-6"></i>
                         </div>
-
-                        {{-- Icono opcional (solo visual, no es imagen) --}}
-                        @if(!empty($dressCode->icon))
-                            @php
-                                $icon = strtolower((string) $dressCode->icon);
-
-                                // Mapeo simple a emoji (en el futuro lo puede cambiar por SVGs)
-                                $emoji = match ($icon) {
-                                    'tie', 'suit' => '👔',
-                                    'dress'       => '👗',
-                                    'cocktail'    => '🍸',
-                                    'casual'      => '🧢',
-                                    default       => '✨',
-                                };
-                            @endphp
-                            <span class="text-xl" title="{{ $dressCode->icon }}">{{ $emoji }}</span>
-                        @endif
+                        <h3 class="cml-eyebrow" style="font-size: 10.5px; margin-bottom: 10px;">{{ $code->type_label }}</h3>
+                        <p class="cml-sans" style="font-size: 13px; line-height: 1.6; color: var(--ink-soft); max-width: 260px; margin: 0 auto;">
+                            {{ $code->description }}
+                        </p>
                     </div>
-
-                    {{-- Imagen de ejemplos --}}
-                    @if($dressCode->examplePhoto)
-                        @php
-                            $photo = $dressCode->examplePhoto;
-                            $url = \Illuminate\Support\Facades\Storage::disk('public')->url(
-                                $photo->thumbnail_path ?: $photo->file_path
-                            );
-                        @endphp
-
-                        <div class="mt-4">
-                            <p class="text-xs uppercase tracking-wide text-slate-400 mb-2">
-                                Imagen de ejemplos
-                            </p>
-
-                            <div class="overflow-hidden rounded-xl border border-slate-700/60 bg-slate-950/30">
-                                <img
-                                    src="{{ $url }}"
-                                    alt="Ejemplo de {{ $dressCode->title }}"
-                                    loading="lazy"
-                                    class="w-full h-44 object-cover"
-                                >
-                            </div>
-                        </div>
-                    @endif
-
-                    {{-- Ejemplos en texto --}}
-                    @if(!empty($dressCode->examples))
-                        <div class="mt-4">
-                            <p class="text-xs uppercase tracking-wide text-slate-400">
-                                Ejemplos
-                            </p>
-                            <p class="text-sm text-slate-200 mt-1 whitespace-pre-line">
-                                {{ $dressCode->examples }}
-                            </p>
-                        </div>
-                    @endif
-
-                    {{-- Notas --}}
-                    @if(!empty($dressCode->notes))
-                        <div class="mt-4">
-                            <p class="text-xs uppercase tracking-wide text-slate-400">
-                                Notas
-                            </p>
-                            <p class="text-sm text-slate-200 mt-1 whitespace-pre-line">
-                                {{ $dressCode->notes }}
-                            </p>
-                        </div>
-                    @endif
-                </article>
-            @endforeach
-        </div>
-    </section>
-@endif
+                @endforeach
+            </div>
+        @endif
+    </div>
+</div>

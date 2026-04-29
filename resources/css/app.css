@@ -1,14 +1,64 @@
 @import "tailwindcss";
 
-/*
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
-:root {
-    --color-primary: #b48aa3;
-    --color-secondary: #fef6f8;
-    --font-main: 'Playfair Display', serif;
+@theme {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-muted: var(--ink-muted);
+  --color-rule: var(--rule);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-leaf: var(--leaf);
+  --color-sand: var(--sand);
+
+  --font-serif: var(--serif);
+  --font-sans: var(--sans);
 }
 
-body {
-    font-family: var(--font-main);
+@layer base {
+  .cml { font-family: var(--sans); color: var(--ink); background: var(--bg); }
+  .cml-serif { font-family: var(--serif); font-weight: 400; letter-spacing: -0.005em; }
+  .cml-sans { font-family: var(--sans); }
+  .cml-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  
+  .cml-card { background: var(--surface); border: 1px solid var(--rule); }
+  .cml-rule { background: var(--rule); }
+  .cml-accent { color: var(--accent); }
+  .cml-eyebrow { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); }
+  
+  .cml-divider { display:flex; align-items:center; justify-content:center; gap: 14px; color: var(--accent); }
+  .cml-divider::before, .cml-divider::after { content:''; height:1px; flex:1; background: var(--accent); opacity:.35; }
+  
+  .cml-img-ph {
+    background-color: var(--sand);
+    background-image: repeating-linear-gradient(135deg, transparent 0 8px, rgba(0,0,0,0.025) 8px 9px);
+    display:flex; align-items:center; justify-content:center; color: var(--ink-muted);
+    font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .cml-img-ph[data-tone="dark"] {
+    background-color: var(--surface-alt);
+    background-image: repeating-linear-gradient(135deg, transparent 0 8px, rgba(0,0,0,0.04) 8px 9px);
+  }
+  
+  .cml-btn {
+    display:inline-flex; align-items:center; gap: 8px; padding: 12px 20px;
+    font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase;
+    background: var(--ink); color: var(--bg); border: none; cursor: pointer;
+  }
+  .cml-btn--ghost {
+    background: transparent; color: var(--ink); border: 1px solid var(--ink);
+  }
+  .cml-btn--accent { background: var(--accent); color: #fff; }
+  
+  .cml-input {
+    width: 100%; box-sizing: border-box; padding: 12px 14px;
+    background: transparent; border: none; border-bottom: 1px solid var(--rule);
+    font-family: var(--sans); font-size: 14px; color: var(--ink); outline: none;
+  }
+  .cml-input:focus { border-bottom-color: var(--accent); }
 }
-*/

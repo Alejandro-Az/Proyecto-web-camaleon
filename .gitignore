@@ -17,3 +17,10 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+# Local/agent artifacts
+/.claude
+/.superpowers
+/debug_output.html
+/test_error.log
+/testing_report.md

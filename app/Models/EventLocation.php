@@ -16,6 +16,7 @@ class EventLocation extends Model
         'address',
         'maps_url',
         'display_order',
+        'is_enabled',
     ];
 
     public function event()
